@@ -1,0 +1,99 @@
+#!/bin/sh
+
+# apt-get update
+# apt-get install sudo
+# adduser joenio sudo
+
+CONTAINER_NAME=
+if [ -z $CONTAINER_NAME ]; then
+  CONTAINER_NAME=noosfero
+fi
+
+HOST_USER=$USER
+HOST_UID=$(getent passwd | grep "^$USER:" | cut -d":" -f3)
+
+restart_container() {
+  # stop and start container
+  sudo lxc-stop -n $CONTAINER_NAME -q
+  sudo lxc-start -n $CONTAINER_NAME -d
+  sudo lxc-wait -n $CONTAINER_NAME -s RUNNING
+
+  # be sure network is up and running
+  sudo lxc-attach -n $CONTAINER_NAME -- service networking start
+}
+
+# ./script/lxc attach
+do_attach() {
+  echo "opening console to '$CONTAINER_NAME' lxc-container..."
+  sudo lxc-attach -n $CONTAINER_NAME -- su - $HOST_USER
+}
+
+# ./script/lxc build
+do_build() {
+  echo "building '$CONTAINER_NAME' lxc container..."
+
+  # pre-requisites
+  sudo apt-get install bridge-utils libvirt-bin debootstrap lxctl
+
+  # configure network
+  sudo virsh net-autostart default
+
+  # create lxc default configuration
+  sudo sh -c "echo lxc.network.type = veth > /etc/lxc/default.conf"
+  sudo sh -c "echo lxc.network.link = virbr0 >> /etc/lxc/default.conf"
+
+  # create container, deboostrap debian wheezy
+  if [ ! -d /var/lib/lxc/$CONTAINER_NAME ]; then
+    sudo lxc-create -n $CONTAINER_NAME -t debian -- -r wheezy
+  fi
+
+  # mount noosfero sources into container
+  sudo sh -c "echo $(pwd) /var/lib/lxc/$CONTAINER_NAME/rootfs/NOOSFERO none bind 0 0 > /var/lib/lxc/$CONTAINER_NAME/fstab"
+
+  # create directory into container to mount noosfero sources
+  if ! sudo test -d /var/lib/lxc/$CONTAINER_NAME/rootfs/NOOSFERO; then
+    sudo mkdir /var/lib/lxc/$CONTAINER_NAME/rootfs/NOOSFERO
+  fi
+
+  restart_container
+
+  # create my user into container
+  if ! sudo grep $HOST_USER /var/lib/lxc/$CONTAINER_NAME/rootfs/etc/passwd > /dev/null; then
+    sudo lxc-attach -n $CONTAINER_NAME -- adduser --system --shell /bin/bash --home /NOOSFERO --uid $HOST_UID --disabled-password --quiet $HOST_USER
+    sudo lxc-attach -n $CONTAINER_NAME -- chown $HOST_USER:nogroup /NOOSFERO
+  fi
+
+  # add user to sudo
+  if ! sudo test -e /var/lib/lxc/$CONTAINER_NAME/rootfs/etc/sudoers.d/sudo-group-nopasswd; then
+    sudo lxc-attach -n $CONTAINER_NAME -- apt-get update
+    sudo lxc-attach -n $CONTAINER_NAME -- apt-get -y install debian-archive-keyring sudo
+    sudo lxc-attach -n $CONTAINER_NAME -- sh -c "echo '%sudo ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/sudo-group-nopasswd"
+    sudo lxc-attach -n $CONTAINER_NAME -- adduser $HOST_USER sudo
+  fi
+
+  sudo lxc-attach -n $CONTAINER_NAME -- su - $HOST_USER -c "/NOOSFERO/script/quick-start --force-install"
+
+  echo
+  echo Done! To open container console, run:
+  echo
+  echo $ sudo lxc-attach -n $CONTAINER_NAME -- su - $HOST_USER
+  echo
+}
+
+# ./script/lxc attach <command>
+do_run() {
+  COMMAND=$@
+  echo "running command '$COMMAND' under '$CONTAINER_NAME' lxc-container..."
+  #restart_container
+  sudo lxc-attach -n $CONTAINER_NAME -- su - $HOST_USER -c "$COMMAND"
+}
+
+case "$1" in
+  attach|build|run)
+    do_$1 ${@#$1}
+    ;;
+  *)
+    echo "Usage: $0 {attach|build|run}" >&2
+    exit 3
+    ;;
+esac
