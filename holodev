@@ -1,0 +1,121 @@
+#!/bin/sh
+
+CONTAINER_NAME=$(basename `pwd`)
+HOST_USER=$USER
+HOST_UID=$(getent passwd | grep "^$USER:" | cut -d":" -f3)
+
+is_container_stopped() {
+  CONTAINER_STATUS=$(sudo lxc-info -s -n $CONTAINER_NAME)
+  echo $CONTAINER_STATUS | grep STOPPED > /dev/null
+}
+
+restart_container() {
+  # stop and start container
+  do_stop
+  do_start
+}
+
+start_if_stopped() {
+  if is_container_stopped; then
+    do_start
+  fi
+}
+
+# ./script/lxc attach
+do_attach() {
+  echo "opening console to '$CONTAINER_NAME' lxc-container..."
+  start_if_stopped
+  sudo lxc-attach -n $CONTAINER_NAME -- su - $HOST_USER
+}
+
+# ./script/lxc build
+do_build() {
+  echo "building '$CONTAINER_NAME' lxc container..."
+
+  # pre-requisites
+  sudo apt-get install bridge-utils libvirt-bin debootstrap lxctl
+
+  # configure network
+  sudo virsh net-autostart default
+
+  # create lxc default configuration
+  sudo sh -c "echo lxc.network.type = veth > /etc/lxc/default.conf"
+  sudo sh -c "echo lxc.network.link = virbr0 >> /etc/lxc/default.conf"
+
+  # create container, deboostrap debian wheezy
+  if [ ! -d /var/lib/lxc/$CONTAINER_NAME ]; then
+    sudo lxc-create -n $CONTAINER_NAME -t debian -- -r wheezy
+  fi
+
+  MOUNT_POINT=$(echo $CONTAINER_NAME | tr '[:lower:]' '[:upper:]')
+
+  # mount current curectory (suppose is the source-code of project i'm working on) into container
+  sudo sh -c "echo $(pwd) /var/lib/lxc/$CONTAINER_NAME/rootfs/$MOUNT_POINT none bind 0 0 > /var/lib/lxc/$CONTAINER_NAME/fstab"
+
+  # create directory into container to mount project sources I'm working on
+  if ! sudo test -d /var/lib/lxc/$CONTAINER_NAME/rootfs/$MOUNT_POINT; then
+    sudo mkdir /var/lib/lxc/$CONTAINER_NAME/rootfs/$MOUNT_POINT
+  fi
+
+  start_if_stopped
+
+  # create my user into container
+  if ! sudo grep $HOST_USER /var/lib/lxc/$CONTAINER_NAME/rootfs/etc/passwd > /dev/null; then
+    sudo lxc-attach -n $CONTAINER_NAME -- adduser --system --shell /bin/bash --home /$MOUNT_POINT --uid $HOST_UID --disabled-password --quiet $HOST_USER
+    sudo lxc-attach -n $CONTAINER_NAME -- chown $HOST_USER:nogroup /$MOUNT_POINT
+  fi
+
+  # add user to sudo
+  if ! sudo test -e /var/lib/lxc/$CONTAINER_NAME/rootfs/etc/sudoers.d/sudo-group-nopasswd; then
+    sudo lxc-attach -n $CONTAINER_NAME -- apt-get update
+    sudo lxc-attach -n $CONTAINER_NAME -- apt-get -y install debian-archive-keyring sudo
+    sudo lxc-attach -n $CONTAINER_NAME -- sh -c "echo '%sudo ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/sudo-group-nopasswd"
+    sudo lxc-attach -n $CONTAINER_NAME -- adduser $HOST_USER sudo
+  fi
+
+  # specific instructions for NOOSFERO
+  # sudo lxc-attach -n $CONTAINER_NAME -- su - $HOST_USER -c "/NOOSFERO/script/quick-start --force-install"
+
+  echo
+  echo Done! To open container console, run:
+  echo "`basename $0` attach"
+  echo
+}
+
+do_info() {
+  sudo lxc-info -n $CONTAINER_NAME
+}
+
+# ./script/lxc attach <command>
+do_run() {
+  COMMAND=$@
+  echo "running command '$COMMAND' under '$CONTAINER_NAME' lxc-container..."
+  start_if_stopped
+  sudo lxc-attach -n $CONTAINER_NAME -- su - $HOST_USER -c "$COMMAND"
+}
+
+do_start() {
+  echo "starting '$CONTAINER_NAME' lxc container..."
+  sudo lxc-start -n $CONTAINER_NAME -d
+  sudo lxc-wait -n $CONTAINER_NAME -s RUNNING
+  # be sure network is up and running
+  sudo lxc-attach -n $CONTAINER_NAME -- service networking start
+}
+
+do_stop() {
+  echo "stopping '$CONTAINER_NAME' lxc container..."
+  sudo lxc-stop -n $CONTAINER_NAME
+}
+
+case "$1" in
+  attach|build|info|run|start|stop)
+    do_$1 ${@#$1}
+    ;;
+  *)
+    echo "lxc-info:"
+    do_info ${@#$1}
+    echo
+    echo "Usage: `basename $0` {attach|build|info|run|start|stop}" >&2
+    exit 3
+    ;;
+esac
