@@ -9,8 +9,7 @@ is_container_stopped() {
   echo $CONTAINER_STATUS | grep STOPPED > /dev/null
 }
 
-restart_container() {
-  # stop and start container
+do_restart() {
   do_stop
   do_start
 }
@@ -21,30 +20,40 @@ start_if_stopped() {
   fi
 }
 
-# ./script/lxc attach
 do_attach() {
   echo "opening console to '$CONTAINER_NAME' lxc-container..."
   start_if_stopped
   sudo lxc-attach -n $CONTAINER_NAME -- su - $HOST_USER
 }
 
-# ./script/lxc build
-do_build() {
-  echo "building '$CONTAINER_NAME' lxc container..."
+do_setup() {
+  which sudo > /dev/null; if [ $? -ne 0 ]; then
+    echo
+    echo "sudo not found!" 1>&2
+    echo "Please install sudo first and add yourself to the sudo group"
+    echo
+    echo "# apt-get update"
+    echo "# apt-get install sudo"
+    echo "# adduser $HOST_USER sudo"
+  fi
 
-  # pre-requisites
+  echo "installing holodev pre-requisites..."
   sudo apt-get install bridge-utils libvirt-bin debootstrap lxctl
 
-  # configure network
+  echo "configuring a virtual network to be automatically started at boot..."
   sudo virsh net-autostart default
+}
 
-  # create lxc default configuration
-  sudo sh -c "echo lxc.network.type = veth > /etc/lxc/default.conf"
-  sudo sh -c "echo lxc.network.link = virbr0 >> /etc/lxc/default.conf"
+do_build() {
+  DEBIAN_CODENAME=$@
+  if [ -z $DEBIAN_CODENAME ]; then
+    DEBIAN_CODENAME=wheezy
+  fi
+  echo "building '$CONTAINER_NAME' lxc container with '$DEBIAN_CODENAME'..."
 
-  # create container, deboostrap debian wheezy
+  # create container, deboostrap debian
   if [ ! -d /var/lib/lxc/$CONTAINER_NAME ]; then
-    sudo lxc-create -n $CONTAINER_NAME -t debian -- -r wheezy
+    sudo lxc-create -n $CONTAINER_NAME -t debian -- -r $DEBIAN_CODENAME
   fi
 
   MOUNT_POINT=$(echo $CONTAINER_NAME | tr '[:lower:]' '[:upper:]')
@@ -56,6 +65,12 @@ do_build() {
   if ! sudo test -d /var/lib/lxc/$CONTAINER_NAME/rootfs/$MOUNT_POINT; then
     sudo mkdir /var/lib/lxc/$CONTAINER_NAME/rootfs/$MOUNT_POINT
   fi
+
+  ## create lxc container default configuration
+  sudo sh -c "echo >> /var/lib/lxc/$CONTAINER_NAME/config"
+  sudo sh -c "echo # holodev configurations >> /var/lib/lxc/$CONTAINER_NAME/config"
+  sudo sh -c "echo lxc.network.type = veth >> /var/lib/lxc/$CONTAINER_NAME/config"
+  sudo sh -c "echo lxc.network.link = virbr0 >> /var/lib/lxc/$CONTAINER_NAME/config"
 
   start_if_stopped
 
@@ -72,21 +87,12 @@ do_build() {
     sudo lxc-attach -n $CONTAINER_NAME -- sh -c "echo '%sudo ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/sudo-group-nopasswd"
     sudo lxc-attach -n $CONTAINER_NAME -- adduser $HOST_USER sudo
   fi
-
-  # specific instructions for NOOSFERO
-  # sudo lxc-attach -n $CONTAINER_NAME -- su - $HOST_USER -c "/NOOSFERO/script/quick-start --force-install"
-
-  echo
-  echo Done! To open container console, run:
-  echo "`basename $0` attach"
-  echo
 }
 
 do_info() {
   sudo lxc-info -n $CONTAINER_NAME
 }
 
-# ./script/lxc attach <command>
 do_run() {
   COMMAND=$@
   echo "running command '$COMMAND' under '$CONTAINER_NAME' lxc-container..."
@@ -107,15 +113,20 @@ do_stop() {
   sudo lxc-stop -n $CONTAINER_NAME
 }
 
+do_destroy() {
+  echo "forcing destroy of '$CONTAINER_NAME' lxc container..."
+  sudo lxc-destroy -n $CONTAINER_NAME -f
+}
+
 case "$1" in
-  attach|build|info|run|start|stop)
+  attach|build|destroy|info|restart|run|start|setup|stop)
     do_$1 ${@#$1}
     ;;
   *)
     echo "lxc-info:"
     do_info ${@#$1}
     echo
-    echo "Usage: `basename $0` {attach|build|info|run|start|stop}" >&2
+    echo "Usage: `basename $0` {attach|build|destroy|info|restart|run|start|setup|stop}" >&2
     exit 3
     ;;
 esac
