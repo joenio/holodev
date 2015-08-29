@@ -10,4 +10,4 @@ Referência para Holodeck:
 
 Infelizmente o suporte a "unprivileged containers" no Debian Jessie
 não é maduro o suficiente, então o holodev continuará fazendo uso
-do sudo para criar e executar privileged containers.
+do sudo para criar e executar "privileged containers".
