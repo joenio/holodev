@@ -3,15 +3,11 @@
 CONTAINER_NAME=$(basename `pwd`)
 HOST_USER=$USER
 HOST_UID=$(getent passwd | grep "^$USER:" | cut -d":" -f3)
+MOUNT_POINT=$(echo $CONTAINER_NAME | tr '[:lower:]' '[:upper:]')
 
 is_container_stopped() {
   CONTAINER_STATUS=$(sudo lxc-info -s -n $CONTAINER_NAME)
   echo $CONTAINER_STATUS | grep STOPPED > /dev/null
-}
-
-do_restart() {
-  do_stop
-  do_start
 }
 
 start_if_stopped() {
@@ -20,8 +16,46 @@ start_if_stopped() {
   fi
 }
 
+create_default_configuration_file() {
+  echo "creating default configuration file"
+  sudo sh -c "echo >> /var/lib/lxc/$CONTAINER_NAME/config"
+  sudo sh -c "echo # holodev configurations >> /var/lib/lxc/$CONTAINER_NAME/config"
+  sudo sh -c "echo lxc.network.type = veth >> /var/lib/lxc/$CONTAINER_NAME/config"
+  sudo sh -c "echo lxc.network.link = virbr0 >> /var/lib/lxc/$CONTAINER_NAME/config"
+}
+
+create_user_into_container() {
+  echo "creating my user into the container"
+  if ! sudo grep $HOST_USER /var/lib/lxc/$CONTAINER_NAME/rootfs/etc/passwd > /dev/null; then
+    sudo lxc-attach -n $CONTAINER_NAME -- adduser --system --shell /bin/bash --home /$MOUNT_POINT --uid $HOST_UID --disabled-password --quiet $HOST_USER
+    sudo lxc-attach -n $CONTAINER_NAME -- chown $HOST_USER:nogroup /$MOUNT_POINT
+  fi
+}
+
+add_user_to_sudo() {
+  echo "adding the user created in the container to sudo"
+  if ! sudo test -e /var/lib/lxc/$CONTAINER_NAME/rootfs/etc/sudoers.d/sudo-group-nopasswd; then
+    sudo lxc-attach -n $CONTAINER_NAME -- apt-get update
+    sudo lxc-attach -n $CONTAINER_NAME -- apt-get -y install debian-archive-keyring sudo
+    sudo lxc-attach -n $CONTAINER_NAME -- sh -c "echo '%sudo ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/sudo-group-nopasswd"
+    sudo lxc-attach -n $CONTAINER_NAME -- adduser $HOST_USER sudo
+  fi
+}
+
+highlight_echo() {
+  message=$@
+  COLOR=$(tput bold; tput setaf 1)
+  ENDCOLOR=$(tput sgr0)
+  echo "${COLOR}[HOLODEV] $message${ENDCOLOR}"
+}
+
+do_restart() {
+  do_stop
+  do_start
+}
+
 do_attach() {
-  echo "opening console to '$CONTAINER_NAME' lxc-container..."
+  highlight_echo "opening console to '$CONTAINER_NAME' container"
   start_if_stopped
   sudo lxc-attach -n $CONTAINER_NAME -- su - $HOST_USER
 }
@@ -44,19 +78,17 @@ do_setup() {
   sudo virsh net-autostart default
 }
 
-do_build() {
+do_create() {
   DEBIAN_CODENAME=$@
   if [ -z $DEBIAN_CODENAME ]; then
     DEBIAN_CODENAME=wheezy
   fi
-  echo "building '$CONTAINER_NAME' lxc container with '$DEBIAN_CODENAME'..."
+  highlight_echo "creating '$CONTAINER_NAME' container with '$DEBIAN_CODENAME'"
 
   # create container, deboostrap debian
   if [ ! -d /var/lib/lxc/$CONTAINER_NAME ]; then
     sudo lxc-create -n $CONTAINER_NAME -t debian -- -r $DEBIAN_CODENAME
   fi
-
-  MOUNT_POINT=$(echo $CONTAINER_NAME | tr '[:lower:]' '[:upper:]')
 
   # mount current curectory (suppose is the source-code of project i'm working on) into container
   sudo sh -c "echo $(pwd) /var/lib/lxc/$CONTAINER_NAME/rootfs/$MOUNT_POINT none bind 0 0 > /var/lib/lxc/$CONTAINER_NAME/fstab"
@@ -66,42 +98,26 @@ do_build() {
     sudo mkdir /var/lib/lxc/$CONTAINER_NAME/rootfs/$MOUNT_POINT
   fi
 
-  ## create lxc container default configuration
-  sudo sh -c "echo >> /var/lib/lxc/$CONTAINER_NAME/config"
-  sudo sh -c "echo # holodev configurations >> /var/lib/lxc/$CONTAINER_NAME/config"
-  sudo sh -c "echo lxc.network.type = veth >> /var/lib/lxc/$CONTAINER_NAME/config"
-  sudo sh -c "echo lxc.network.link = virbr0 >> /var/lib/lxc/$CONTAINER_NAME/config"
-
+  create_default_configuration_file
   start_if_stopped
-
-  # create my user into container
-  if ! sudo grep $HOST_USER /var/lib/lxc/$CONTAINER_NAME/rootfs/etc/passwd > /dev/null; then
-    sudo lxc-attach -n $CONTAINER_NAME -- adduser --system --shell /bin/bash --home /$MOUNT_POINT --uid $HOST_UID --disabled-password --quiet $HOST_USER
-    sudo lxc-attach -n $CONTAINER_NAME -- chown $HOST_USER:nogroup /$MOUNT_POINT
-  fi
-
-  # add user to sudo
-  if ! sudo test -e /var/lib/lxc/$CONTAINER_NAME/rootfs/etc/sudoers.d/sudo-group-nopasswd; then
-    sudo lxc-attach -n $CONTAINER_NAME -- apt-get update
-    sudo lxc-attach -n $CONTAINER_NAME -- apt-get -y install debian-archive-keyring sudo
-    sudo lxc-attach -n $CONTAINER_NAME -- sh -c "echo '%sudo ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/sudo-group-nopasswd"
-    sudo lxc-attach -n $CONTAINER_NAME -- adduser $HOST_USER sudo
-  fi
+  create_user_into_container
+  add_user_to_sudo
 }
 
 do_info() {
+  highlight_echo "getting info about '$CONTAINER_NAME' container"
   sudo lxc-info -n $CONTAINER_NAME
 }
 
 do_run() {
   COMMAND=$@
-  echo "running command '$COMMAND' under '$CONTAINER_NAME' lxc-container..."
+  highlight_echo "running '$COMMAND' under '$CONTAINER_NAME' container"
   start_if_stopped
   sudo lxc-attach -n $CONTAINER_NAME -- su - $HOST_USER -c "$COMMAND"
 }
 
 do_start() {
-  echo "starting '$CONTAINER_NAME' lxc container..."
+  highlight_echo "starting '$CONTAINER_NAME' container"
   sudo lxc-start -n $CONTAINER_NAME -d
   sudo lxc-wait -n $CONTAINER_NAME -s RUNNING
   # be sure network is up and running
@@ -109,24 +125,23 @@ do_start() {
 }
 
 do_stop() {
-  echo "stopping '$CONTAINER_NAME' lxc container..."
+  highlight_echo "stopping '$CONTAINER_NAME' container"
   sudo lxc-stop -n $CONTAINER_NAME
 }
 
 do_destroy() {
-  echo "forcing destroy of '$CONTAINER_NAME' lxc container..."
+  highlight_echo "destroing '$CONTAINER_NAME' container"
   sudo lxc-destroy -n $CONTAINER_NAME -f
 }
 
 case "$1" in
-  attach|build|destroy|info|restart|run|start|setup|stop)
+  attach|create|destroy|info|restart|run|start|setup|stop)
     do_$1 ${@#$1}
     ;;
   *)
-    echo "lxc-info:"
     do_info ${@#$1}
     echo
-    echo "Usage: `basename $0` {attach|build|destroy|info|restart|run|start|setup|stop}" >&2
+    echo "Usage: `basename $0` {attach|create|destroy|info|restart|run|start|setup|stop}" >&2
     exit 3
     ;;
 esac
