@@ -8,4 +8,6 @@ Referência para Holodeck:
 
 * https://en.wikipedia.org/wiki/Holodeck
 
-Objetivo: roda sem sudo através de "unprivileged containers"
+Infelizmente o suporte a "unprivileged containers" no Debian Jessie
+não é maduro o suficiente, então o holodev continuará fazendo uso
+do sudo para criar e executar privileged containers.
