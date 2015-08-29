@@ -5,7 +5,7 @@ HOST_USER=$USER
 HOST_UID=$(getent passwd | grep "^$USER:" | cut -d":" -f3)
 
 is_container_stopped() {
-  CONTAINER_STATUS=$(sudo lxc-info -s -n $CONTAINER_NAME)
+  CONTAINER_STATUS=$(lxc-info -s -n $CONTAINER_NAME)
   echo $CONTAINER_STATUS | grep STOPPED > /dev/null
 }
 
@@ -23,7 +23,7 @@ start_if_stopped() {
 do_attach() {
   echo "opening console to '$CONTAINER_NAME' lxc-container..."
   start_if_stopped
-  sudo lxc-attach -n $CONTAINER_NAME -- su - $HOST_USER
+  lxc-attach -n $CONTAINER_NAME -- su - $HOST_USER
 }
 
 do_setup() {
@@ -38,95 +38,126 @@ do_setup() {
   fi
 
   echo "installing holodev pre-requisites..."
-  sudo apt-get install bridge-utils libvirt-bin debootstrap lxctl
+  sudo apt-get install bridge-utils libvirt-bin debootstrap lxctl uidmap cgmanager
 
   echo "configuring a virtual network to be automatically started at boot..."
   sudo virsh net-autostart default
+
+  echo "configuring usermod uids and gids..."
+  sudo usermod --add-subuids 100000-165536 $HOST_USER
+  sudo usermod --add-subgids 100000-165536 $HOST_USER
+  sudo chmod +x $HOME
+
+  echo "creating LXC config directories..."
+  mkdir -p $HOME/.config/lxc
+  mkdir -p $HOME/.local/share/lxc
+  chmod +x $HOME/.local
+  chmod +x $HOME/.local/share
+
+  echo "creating lxc-usernet file..."
+  echo "$HOST_USER veth virbr0 10" > /etc/lxc/lxc-usernet
+
+  echo "creating default.conf file..."
+  #lxc.network.hwaddr = 00:16:3e:xx:xx:xx
+  echo "# holodev configurations" > $HOME/.config/lxc/default.conf
+  echo "lxc.network.type = veth" >> $HOME/.config/lxc/default.conf
+  echo "lxc.network.link = virbr0" >> $HOME/.config/lxc/default.conf
+  echo "lxc.network.flags = up" >> $HOME/.config/lxc/default.conf
+  echo "lxc.id_map = u 0 100000 65536" >> $HOME/.config/lxc/default.conf
+  echo "lxc.id_map = g 0 100000 65536" >> $HOME/.config/lxc/default.conf
+
+  echo "configuring cgmanager..."
+  sudo service cgmanager start
+  sudo cgm create all $HOST_USER
+  sudo cgm chown all $HOST_USER $(id -u $HOST_USER) $(id -g $HOST_USER)
+  sudo cgm movepid all $HOST_USER $$
 }
 
-do_build() {
+# https://www.stgraber.org/2014/01/17/lxc-1-0-unprivileged-containers/
+# http://www.linuxquestions.org/questions/linux-kernel-70/lxc-unprivileged-container-in-debian-jessie-cgroups-permissions-4175540174/
+
+do_create() {
   DEBIAN_CODENAME=$@
   if [ -z $DEBIAN_CODENAME ]; then
     DEBIAN_CODENAME=wheezy
   fi
-  echo "building '$CONTAINER_NAME' lxc container with '$DEBIAN_CODENAME'..."
+  echo "creating '$CONTAINER_NAME' lxc container with '$DEBIAN_CODENAME'..."
 
   # create container, deboostrap debian
-  if [ ! -d /var/lib/lxc/$CONTAINER_NAME ]; then
-    sudo lxc-create -n $CONTAINER_NAME -t debian -- -r $DEBIAN_CODENAME
+  if [ ! -d $HOME/.local/share/lxc/$CONTAINER_NAME ]; then
+    lxc-create -n $CONTAINER_NAME -t download -- -d debian -r $DEBIAN_CODENAME -a i386
+  else
+    echo "container already exists!"
+    exit
   fi
 
   MOUNT_POINT=$(echo $CONTAINER_NAME | tr '[:lower:]' '[:upper:]')
 
-  # mount current curectory (suppose is the source-code of project i'm working on) into container
-  sudo sh -c "echo $(pwd) /var/lib/lxc/$CONTAINER_NAME/rootfs/$MOUNT_POINT none bind 0 0 > /var/lib/lxc/$CONTAINER_NAME/fstab"
-
-  # create directory into container to mount project sources I'm working on
-  if ! sudo test -d /var/lib/lxc/$CONTAINER_NAME/rootfs/$MOUNT_POINT; then
-    sudo mkdir /var/lib/lxc/$CONTAINER_NAME/rootfs/$MOUNT_POINT
-  fi
-
-  ## create lxc container default configuration
-  sudo sh -c "echo >> /var/lib/lxc/$CONTAINER_NAME/config"
-  sudo sh -c "echo # holodev configurations >> /var/lib/lxc/$CONTAINER_NAME/config"
-  sudo sh -c "echo lxc.network.type = veth >> /var/lib/lxc/$CONTAINER_NAME/config"
-  sudo sh -c "echo lxc.network.link = virbr0 >> /var/lib/lxc/$CONTAINER_NAME/config"
+  ## # create directory into container to mount project sources I'm working on
+  ## if ! test -d $HOME/.local/share/lxc/$CONTAINER_NAME/rootfs/$MOUNT_POINT; then
+  ##   mkdir $HOME/.local/share/lxc/$CONTAINER_NAME/rootfs/$MOUNT_POINT
+  ## fi
 
   start_if_stopped
 
   # create my user into container
-  if ! sudo grep $HOST_USER /var/lib/lxc/$CONTAINER_NAME/rootfs/etc/passwd > /dev/null; then
-    sudo lxc-attach -n $CONTAINER_NAME -- adduser --system --shell /bin/bash --home /$MOUNT_POINT --uid $HOST_UID --disabled-password --quiet $HOST_USER
-    sudo lxc-attach -n $CONTAINER_NAME -- chown $HOST_USER:nogroup /$MOUNT_POINT
+  if ! grep $HOST_USER $HOME/.local/share/lxc/$CONTAINER_NAME/rootfs/etc/passwd > /dev/null; then
+    lxc-attach -n $CONTAINER_NAME -- adduser --system --shell /bin/bash --home /$MOUNT_POINT --uid $HOST_UID --disabled-password --quiet $HOST_USER
+    #lxc-attach -n $CONTAINER_NAME -- chown $HOST_USER:nogroup /$MOUNT_POINT
   fi
 
   # add user to sudo
-  if ! sudo test -e /var/lib/lxc/$CONTAINER_NAME/rootfs/etc/sudoers.d/sudo-group-nopasswd; then
-    sudo lxc-attach -n $CONTAINER_NAME -- apt-get update
-    sudo lxc-attach -n $CONTAINER_NAME -- apt-get -y install debian-archive-keyring sudo
-    sudo lxc-attach -n $CONTAINER_NAME -- sh -c "echo '%sudo ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/sudo-group-nopasswd"
-    sudo lxc-attach -n $CONTAINER_NAME -- adduser $HOST_USER sudo
+  if ! test -e $HOME/.local/share/lxc/$CONTAINER_NAME/rootfs/etc/sudoers.d/sudo-group-nopasswd; then
+    lxc-attach -n $CONTAINER_NAME -- apt-get update
+    lxc-attach -n $CONTAINER_NAME -- apt-get -y install debian-archive-keyring sudo
+    lxc-attach -n $CONTAINER_NAME -- sh -c "echo '%sudo ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/sudo-group-nopasswd"
+    lxc-attach -n $CONTAINER_NAME -- adduser $HOST_USER sudo
   fi
+
+  do_stop
+
+  # mount current curectory (suppose is the source-code of project i'm working on) into container
+  echo $(pwd) $HOME/.local/share/lxc/$CONTAINER_NAME/rootfs/$MOUNT_POINT none bind 0 0 > $HOME/.local/share/lxc/$CONTAINER_NAME/fstab
 }
 
 do_info() {
-  sudo lxc-info -n $CONTAINER_NAME
+  lxc-info -n $CONTAINER_NAME
 }
 
 do_run() {
   COMMAND=$@
   echo "running command '$COMMAND' under '$CONTAINER_NAME' lxc-container..."
   start_if_stopped
-  sudo lxc-attach -n $CONTAINER_NAME -- su - $HOST_USER -c "$COMMAND"
+  lxc-attach -n $CONTAINER_NAME -- su - $HOST_USER -c "$COMMAND"
 }
 
 do_start() {
   echo "starting '$CONTAINER_NAME' lxc container..."
-  sudo lxc-start -n $CONTAINER_NAME -d
-  sudo lxc-wait -n $CONTAINER_NAME -s RUNNING
+  lxc-start -n $CONTAINER_NAME -d -o `basename $0`.log
+  lxc-wait -n $CONTAINER_NAME -s RUNNING
   # be sure network is up and running
-  sudo lxc-attach -n $CONTAINER_NAME -- service networking start
+  lxc-attach -n $CONTAINER_NAME -- sh -c "service networking start"
 }
 
 do_stop() {
   echo "stopping '$CONTAINER_NAME' lxc container..."
-  sudo lxc-stop -n $CONTAINER_NAME
+  lxc-stop -n $CONTAINER_NAME
 }
 
 do_destroy() {
   echo "forcing destroy of '$CONTAINER_NAME' lxc container..."
-  sudo lxc-destroy -n $CONTAINER_NAME -f
+  lxc-destroy -n $CONTAINER_NAME -f
 }
 
 case "$1" in
-  attach|build|destroy|info|restart|run|start|setup|stop)
+  attach|create|destroy|info|restart|run|start|setup|stop)
     do_$1 ${@#$1}
     ;;
   *)
     echo "lxc-info:"
     do_info ${@#$1}
     echo
-    echo "Usage: `basename $0` {attach|build|destroy|info|restart|run|start|setup|stop}" >&2
+    echo "Usage: `basename $0` {attach|create|destroy|info|restart|run|start|setup|stop}" >&2
     exit 3
     ;;
 esac
