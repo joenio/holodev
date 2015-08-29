@@ -1,0 +1,16 @@
+Source: holodev
+Section: admin
+Priority: optional
+Maintainer: Joenio Costa <joenio@colivre.coop.br>
+Build-Depends-Indep: debhelper (>= 8)
+Standards-Version: 3.9.6
+Homepage: https://github.com/joenio/holodev
+Vcs-Git: https://github.com/joenio/holodev.git
+
+Package: holodev
+Architecture: all
+Depends: sudo, bridge-utils, libvirt-bin, debootstrap,
+         ${misc:Depends}
+Description: ferramenta para ajudar criacao de containers
+ holodev eh uma ferramenta escrita em shell-script para auxuliar
+ a criacao de Linux Containers.
