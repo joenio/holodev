@@ -44,9 +44,9 @@ add_user_to_sudo() {
 
 highlight_echo() {
   message=$@
-  COLOR=$(tput bold; tput setaf 1)
+  YELLOW=$(tput bold; tput setaf 3)
   ENDCOLOR=$(tput sgr0)
-  echo "${COLOR}[HOLODEV] $message${ENDCOLOR}"
+  echo "${YELLOW}[HOLODEV] $message${ENDCOLOR}"
 }
 
 do_restart() {
