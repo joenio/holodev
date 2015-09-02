@@ -71,9 +71,6 @@ do_setup() {
     echo "# adduser $HOST_USER sudo"
   fi
 
-  echo "installing holodev pre-requisites..."
-  sudo apt-get install bridge-utils libvirt-bin debootstrap lxctl
-
   echo "configuring a virtual network to be automatically started at boot..."
   sudo virsh net-autostart default
 }
