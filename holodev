@@ -55,7 +55,7 @@ do_restart() {
 }
 
 do_attach() {
-  highlight_echo "opening console to '$CONTAINER_NAME' container"
+  highlight_echo "opening console to '$CONTAINER_NAME'"
   start_if_stopped
   sudo lxc-attach -n $CONTAINER_NAME -- su - $HOST_USER
 }
@@ -80,7 +80,7 @@ do_create() {
   if [ -z $DEBIAN_CODENAME ]; then
     DEBIAN_CODENAME=wheezy
   fi
-  highlight_echo "creating '$CONTAINER_NAME' container with '$DEBIAN_CODENAME'"
+  highlight_echo "creating '$CONTAINER_NAME' with '$DEBIAN_CODENAME'"
 
   # create container, deboostrap debian
   if [ ! -d /var/lib/lxc/$CONTAINER_NAME ]; then
@@ -102,19 +102,19 @@ do_create() {
 }
 
 do_info() {
-  highlight_echo "getting info about '$CONTAINER_NAME' container"
+  highlight_echo "getting info about '$CONTAINER_NAME'"
   sudo lxc-info -n $CONTAINER_NAME
 }
 
 do_run() {
   COMMAND=$@
-  highlight_echo "running '$COMMAND' under '$CONTAINER_NAME' container"
+  highlight_echo "running '$COMMAND' under '$CONTAINER_NAME'"
   start_if_stopped
   sudo lxc-attach -n $CONTAINER_NAME -- su - $HOST_USER -c "$COMMAND"
 }
 
 do_start() {
-  highlight_echo "starting '$CONTAINER_NAME' container"
+  highlight_echo "starting '$CONTAINER_NAME'"
   sudo lxc-start -n $CONTAINER_NAME -d
   sudo lxc-wait -n $CONTAINER_NAME -s RUNNING
   # be sure network is up and running
@@ -122,12 +122,12 @@ do_start() {
 }
 
 do_stop() {
-  highlight_echo "stopping '$CONTAINER_NAME' container"
+  highlight_echo "stopping '$CONTAINER_NAME'"
   sudo lxc-stop -n $CONTAINER_NAME
 }
 
 do_destroy() {
-  highlight_echo "destroing '$CONTAINER_NAME' container"
+  highlight_echo "destroing '$CONTAINER_NAME'"
   sudo lxc-destroy -n $CONTAINER_NAME -f
 }
 
