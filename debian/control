@@ -9,7 +9,7 @@ Vcs-Git: https://github.com/joenio/holodev.git
 
 Package: holodev
 Architecture: all
-Depends: sudo, bridge-utils, libvirt-bin, debootstrap,
+Depends: sudo, bridge-utils, libvirt-bin, debootstrap, lxc,
          ${misc:Depends}
 Description: ferramenta para ajudar criacao de containers
  holodev eh uma ferramenta escrita em shell-script para auxuliar
