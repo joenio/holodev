@@ -1,9 +1,51 @@
 #!/bin/sh
 
-CONTAINER_NAME=$(basename `pwd`)
 HOST_USER=$USER
 HOST_UID=$(getent passwd | grep "^$USER:" | cut -d":" -f3)
-MOUNT_POINT=$(echo $CONTAINER_NAME | tr '[:lower:]' '[:upper:]')
+CURRENT_DIRECTORY=$(basename `pwd`)
+MOUNT_POINT=$(echo $CURRENT_DIRECTORY | tr '[:lower:]' '[:upper:]')
+CONTAINER_NAME=$CURRENT_DIRECTORY-$(git describe --contains --all HEAD)
+DEBIAN_RELEASE=wheezy
+INVALID_OPTIONS=false
+
+for i in "$@"; do
+  case $i in
+    attach|create|destroy|info|restart|run|start|setup|stop)
+      COMMAND=$i
+      ;;
+    --no-branch)
+      CONTAINER_NAME=$CURRENT_DIRECTORY
+      shift 2
+      ;;
+    --release)
+      DEBIAN_RELEASE=$2
+      shift 2
+      ;;
+    --version)
+      echo 0.2
+      exit 0
+      ;;
+    *)
+      echo "W: unknown option '$i'"
+      INVALID_OPTIONS=true
+      ;;
+  esac
+done
+
+if $INVALID_OPTIONS; then
+  exit 3
+fi
+
+if [ -z $COMMAND ]; then
+  echo "E: missing command" >&2
+  echo "" >&2
+  echo "Usage: `basename $0` <command> [options]" >&2
+  echo "" >&2
+  echo "* command = {attach|create|destroy|info|restart|run|start|setup|stop}" >&2
+  echo "* options = --no-branch" >&2
+  echo "            --release <debian-codename>" >&2
+  exit 3
+fi
 
 is_container_stopped() {
   CONTAINER_STATUS=$(sudo lxc-info -s -n $CONTAINER_NAME)
@@ -80,15 +122,11 @@ do_setup() {
 }
 
 do_create() {
-  DEBIAN_CODENAME=$@
-  if [ -z $DEBIAN_CODENAME ]; then
-    DEBIAN_CODENAME=wheezy
-  fi
-  highlight_echo "creating '$CONTAINER_NAME' with '$DEBIAN_CODENAME'"
+  highlight_echo "creating '$CONTAINER_NAME' with '$DEBIAN_RELEASE'"
 
   # create container, deboostrap debian
   if [ ! -d /var/lib/lxc/$CONTAINER_NAME ]; then
-    sudo lxc-create -n $CONTAINER_NAME -t debian -- -r $DEBIAN_CODENAME
+    sudo lxc-create -n $CONTAINER_NAME -t debian -- -r $DEBIAN_RELEASE
   fi
 
   # mount current curectory (suppose is the source-code of project i'm working on) into container
@@ -135,14 +173,5 @@ do_destroy() {
   sudo lxc-destroy -n $CONTAINER_NAME -f
 }
 
-case "$1" in
-  attach|create|destroy|info|restart|run|start|setup|stop)
-    do_$1 ${@#$1}
-    ;;
-  *)
-    do_info ${@#$1}
-    echo
-    echo "Usage: `basename $0` {attach|create|destroy|info|restart|run|start|setup|stop}" >&2
-    exit 3
-    ;;
-esac
+do_$COMMAND
+exit 0

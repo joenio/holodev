@@ -25,27 +25,34 @@ Baixe a chave do repositório Debian:
 
     # wget -O - http://debian.joenio.me/signing.asc | apt-key add -
 
-E instale o pacote `holodev`:
+E instale:
 
     # apt-get update
     # apt-get install holodev
 
 ## Usando
 
-O script `holodev` cria Linux Containers usando o nome do diretório corrente,
-ele atende a situação onde para cada projeto (diretório) tenho um container
-para desenvolvimento, de forma que eu não poluo meu sistema com dependencias
-de desenvolvimento.
+O script `holodev` cria Linux Containers usando o diretório corrente mais o
+branch `git` para compor o nome do container, ele cobre o cenário onde para
+cada projeto (diretório) existe um Linux Container, de forma que não seja
+necessário instalar dependencias de desenvolvimento em seu sistema real.
 
-Se estou no diretório chamado `noosfero` será criado um container de mesmo
-nome, exemplo:
+Exemplo, no diretório `noosfero` na branch `master` será criado um container
+chamado `noosfero-master`:
 
     ~/src/noosfero$ holodev create
 
-Um container chamado `noosfero` será criado usando Debian Wheezy (padrão),
-se eu quero usar Jessie ao invés de Wheezy devo informar como parâmetro:
+O container `noosfero-master` será criado com Debian Wheezy (padrão), caso
+deseje informar outra versão do Debian basta usar a opção `--release`:
 
-    ~/src/noosfero$ holodev create jessie
+    ~/src/noosfero$ holodev create --release jessie
+
+Caso não deseje utilizar o branch `git` para compor o nome do container use a
+opção `--no-branch`:
+
+    ~/src/noosfero$ holodev create --no-branch
+
+Criará um container chamado `noosfero`.
 
 ## Autor
 

@@ -1,3 +1,11 @@
+holodev (0.2) unstable; urgency=medium
+
+  * added command line options: --no-branch, --version and --release
+  * using git branch to compose container name
+  * new dependency: git
+
+ -- Joenio Costa <joenio@colivre.coop.br>  Sat, 28 Nov 2015 02:18:51 -0200
+
 holodev (0.1) unstable; urgency=medium
 
   * Initial release. (Closes: #XXXXXX)
