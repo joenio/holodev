@@ -1,3 +1,9 @@
+holodev (0.3) unstable; urgency=medium
+
+  * fixing bug when setting Debian release creating new container
+
+ -- Joenio Costa <joenio@colivre.coop.br>  Thu, 14 Jan 2016 12:41:16 -0200
+
 holodev (0.2) unstable; urgency=medium
 
   * added command line options: --no-branch, --version and --release
