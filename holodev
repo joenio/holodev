@@ -21,18 +21,22 @@ for i in "$@"; do
   case $i in
     attach|create|destroy|info|restart|run|start|setup|stop)
       COMMAND=$i
+      shift
       ;;
     --no-branch)
       CONTAINER_NAME=$CURRENT_DIRECTORY
-      shift 2
+      shift
       ;;
     --release)
       DEBIAN_RELEASE=$2
       shift 2
       ;;
     --version)
+      shift
       echo 0.2
       exit 0
+      ;;
+    jessie|sid|squeeze|stable|testing|wheezy)
       ;;
     *)
       echo "W: unknown option '$i'"
