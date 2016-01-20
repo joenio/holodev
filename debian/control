@@ -11,6 +11,7 @@ Package: holodev
 Architecture: all
 Depends: sudo, bridge-utils, libvirt-bin, debootstrap, lxc, git,
          ${misc:Depends}
+Suggests: cgmanager
 Description: ferramenta para ajudar criacao de linux containers
  holodev eh uma ferramenta escrita em shell-script para auxuliar
  a criacao de Linux Containers.
