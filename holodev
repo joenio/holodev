@@ -124,9 +124,20 @@ do_setup() {
     echo "# apt-get update"
     echo "# apt-get install sudo"
     echo "# adduser $HOST_USER sudo"
+    exit 4
   fi
 
-  virbr0=$(brctl show virbr0 2>&1 | grep "No such device")
+  sudo which brctl > /dev/null; if [ $? -ne 0 ]; then
+    echo
+    echo "brctl not found!" 1>&2
+    echo "Please install bridge-utils first and run 'setup' again"
+    echo
+    echo "# apt-get update"
+    echo "# apt-get install bridge-utils"
+    exit 4
+  fi
+
+  virbr0=$(sudo brctl show virbr0 2>&1 | grep "No such device")
   if [ -n "$virbr0" ]; then
     echo "[HOLODEV] configuring 'virbr0' virtual network device..."
     sudo virsh net-autostart default
