@@ -2,7 +2,7 @@ Source: holodev
 Section: admin
 Priority: optional
 Maintainer: Joenio Costa <joenio@colivre.coop.br>
-Build-Depends-Indep: debhelper (>= 8)
+Build-Depends-Indep: debhelper (>= 8), shunit2
 Standards-Version: 3.9.6
 Homepage: https://github.com/joenio/holodev
 Vcs-Git: https://github.com/joenio/holodev.git

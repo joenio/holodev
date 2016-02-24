@@ -57,7 +57,7 @@ if [ -z $COMMAND ]; then
   echo "* command = {attach|create|destroy|info|restart|run|start|setup|stop}" >&2
   echo "* options = --no-branch" >&2
   echo "            --release <debian-codename>" >&2
-  exit 3
+  exit 2
 fi
 
 is_container_stopped() {
