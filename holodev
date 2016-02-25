@@ -19,9 +19,14 @@ fi
 
 for i in "$@"; do
   case $i in
-    attach|create|destroy|info|restart|run|start|setup|stop)
+    attach|create|destroy|info|restart|start|setup|stop)
       COMMAND=$i
       shift
+      ;;
+    run)
+      COMMAND=$i
+      shift
+      break
       ;;
     --no-branch)
       CONTAINER_NAME=$CURRENT_DIRECTORY
@@ -57,7 +62,7 @@ if [ -z $COMMAND ]; then
   echo "* command = {attach|create|destroy|info|restart|run|start|setup|stop}" >&2
   echo "* options = --no-branch" >&2
   echo "            --release <debian-codename>" >&2
-  exit 3
+  exit 2
 fi
 
 is_container_stopped() {
@@ -124,9 +129,20 @@ do_setup() {
     echo "# apt-get update"
     echo "# apt-get install sudo"
     echo "# adduser $HOST_USER sudo"
+    exit 4
   fi
 
-  virbr0=$(brctl show virbr0 2>&1 | grep "No such device")
+  sudo which brctl > /dev/null; if [ $? -ne 0 ]; then
+    echo
+    echo "brctl not found!" 1>&2
+    echo "Please install bridge-utils first and run 'setup' again"
+    echo
+    echo "# apt-get update"
+    echo "# apt-get install bridge-utils"
+    exit 4
+  fi
+
+  virbr0=$(sudo brctl show virbr0 2>&1 | grep "No such device")
   if [ -n "$virbr0" ]; then
     echo "[HOLODEV] configuring 'virbr0' virtual network device..."
     sudo virsh net-autostart default
@@ -186,5 +202,5 @@ do_destroy() {
   sudo lxc-destroy -n $CONTAINER_NAME -f
 }
 
-do_$COMMAND
+do_$COMMAND $@
 exit 0

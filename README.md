@@ -54,6 +54,25 @@ opção `--no-branch`:
 
 Criará um container chamado `noosfero`.
 
+## Desenvolvimento
+
+O `holodev` possui uma pequena suíte de testes implementada com base no
+`shunit2`:
+
+* http://github.com/kward/shunit2
+
+Para rodar estes testes é preciso instalar o `vagrant`, `virtualbox` e executar
+o comando `vagrant up`, os testes serão executados em:
+
+* Debian Squeezy
+* Debian Wheezy
+* Debian Jessie
+
+Em alguns casos pode ser necessário instalar o `virtualbox-guest-utils` e
+executar o seguinte:
+
+    dpkg-reconfigure virtualbox-dkms
+
 ## Autor
 
 * Joenio Costa <joenio@colivre.coop.br>
