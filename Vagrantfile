@@ -2,7 +2,7 @@ VAGRANTFILE_API_VERSION = '2'
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   config.vm.provision :shell do |shell|
-    shell.inline = 'cd /vagrant && ./development-setup.sh && make test'
+    shell.inline = "su - vagrant -c 'cd /vagrant && ./development-setup.sh && make test'"
   end
   config.vm.network 'public_network', bridge: "wlan0"
 
