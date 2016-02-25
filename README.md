@@ -68,6 +68,11 @@ o comando `vagrant up`, os testes serão executados em:
 * Debian Wheezy
 * Debian Jessie
 
+Em alguns casos pode ser necessário instalar o `virtualbox-guest-utils` e
+executar o seguinte:
+
+    dpkg-reconfigure virtualbox-dkms
+
 ## Autor
 
 * Joenio Costa <joenio@colivre.coop.br>
