@@ -1,7 +1,7 @@
 #!/bin/sh
 
 oneTimeSetUp() {
-  ./holodev setup > /dev/null 2>&1
+  ./holodev setup
 }
 
 test_code_returned_by_holodev_without_no_arguments() {

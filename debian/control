@@ -3,7 +3,8 @@ Section: admin
 Priority: optional
 Maintainer: Joenio Costa <joenio@colivre.coop.br>
 Build-Depends-Indep: debhelper (>= 8), shunit2
-Build-Depends: make, bridge-utils, libvirt-bin, lxc
+Build-Depends: make, bridge-utils, libvirt-bin, debootstrap,
+               lxc, dnsmasq, ebtables
 Standards-Version: 3.9.6
 Homepage: https://github.com/joenio/holodev
 Vcs-Git: https://github.com/joenio/holodev.git
