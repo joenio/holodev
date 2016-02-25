@@ -19,9 +19,14 @@ fi
 
 for i in "$@"; do
   case $i in
-    attach|create|destroy|info|restart|run|start|setup|stop)
+    attach|create|destroy|info|restart|start|setup|stop)
       COMMAND=$i
       shift
+      ;;
+    run)
+      COMMAND=$i
+      shift
+      break
       ;;
     --no-branch)
       CONTAINER_NAME=$CURRENT_DIRECTORY
@@ -197,5 +202,5 @@ do_destroy() {
   sudo lxc-destroy -n $CONTAINER_NAME -f
 }
 
-do_$COMMAND
+do_$COMMAND $@
 exit 0
