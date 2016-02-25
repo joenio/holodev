@@ -4,6 +4,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.provision :shell do |shell|
     shell.inline = 'cd /vagrant && ./development-setup.sh && make test'
   end
+  config.vm.network 'public_network', bridge: "wlan0"
 
   ['squeeze', 'wheezy', 'jessie'].each do |release|
     config.vm.define release do |machine|
