@@ -1,2 +1,2 @@
 test:
-	shunit2 tests/*_test.sh
+	$(foreach test,$(wildcard tests/*_test.sh), sh $(test);)

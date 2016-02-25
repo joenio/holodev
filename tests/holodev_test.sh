@@ -38,3 +38,5 @@ test_create_container_and_mount_the_current_directory_into_container() {
   cd $WORKING_DIR
   rm -rf $TEMP_DIR
 }
+
+. shunit2
