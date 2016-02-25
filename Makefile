@@ -1,2 +1,2 @@
 test:
-	shunit2 tests/*.sh
+	shunit2 tests/*_test.sh
