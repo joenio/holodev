@@ -38,7 +38,7 @@ for i in "$@"; do
       ;;
     --version)
       shift
-      echo 0.3
+      echo 0.4
       exit 0
       ;;
     jessie|sid|squeeze|stable|testing|wheezy)

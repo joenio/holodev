@@ -1,3 +1,12 @@
+holodev (0.4) UNRELEASED; urgency=medium
+
+  * fix bug with `holodev run` command
+  * latest lxc version needs lxc.mount option to be defined
+  * added unit tests using shunit2
+  * added infrastructure to runnig tests under vagrant boxes
+
+ -- Joenio Costa <joenio@colivre.coop.br>  Fri, 26 Feb 2016 03:49:07 -0300
+
 holodev (0.3) unstable; urgency=medium
 
   * fixing bug when setting Debian release creating new container
