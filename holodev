@@ -82,6 +82,7 @@ create_default_configuration_file() {
   sudo sh -c "echo # holodev configurations >> /var/lib/lxc/$CONTAINER_NAME/config"
   sudo sh -c "echo lxc.network.type = veth >> /var/lib/lxc/$CONTAINER_NAME/config"
   sudo sh -c "echo lxc.network.link = virbr0 >> /var/lib/lxc/$CONTAINER_NAME/config"
+  sudo sh -c "echo lxc.mount = /var/lib/lxc/$CONTAINER_NAME/fstab >> /var/lib/lxc/$CONTAINER_NAME/config"
 }
 
 create_user_into_container() {
@@ -142,8 +143,8 @@ do_setup() {
     exit 4
   fi
 
-  virbr0=$(sudo brctl show virbr0 2>&1 | grep "No such device")
-  if [ -n "$virbr0" ]; then
+  virbr0=$(sudo brctl show | grep virbr0 2>&1)
+  if [ -z "$virbr0" ]; then
     echo "[HOLODEV] configuring 'virbr0' virtual network device..."
     sudo virsh net-autostart default
     sudo virsh net-start default
