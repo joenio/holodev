@@ -1,3 +1,4 @@
 language: bash
-before_script: curl -L 'http://shunit2.googlecode.com/files/shunit2-2.1.6.tgz' | tar zx
+sudo: required
+before_install: ./development-setup.sh
 script: make test
