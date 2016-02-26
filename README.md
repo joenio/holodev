@@ -19,7 +19,7 @@ Distribuições GNU/Linux suportadas:
 * Ubuntu
   * Precise (não suportado)
   * Trusty
-  * Utopic
+  * Utopic (não testado)
   * Vivid
   * Wily
 

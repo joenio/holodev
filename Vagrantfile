@@ -21,9 +21,4 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     end
   end
 
-  config.vm.define 'utopic' do |machine|
-    machine.vm.box = 'chrisvire/utopic32'
-    machine.vm.provision 'shell', path: "vagrant-scripts/ubuntu.sh", :args => 'utopic'
-  end
-
 end
