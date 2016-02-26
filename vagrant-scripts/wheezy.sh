@@ -8,6 +8,7 @@ echo 'Pin-Priority: 600'               >> /etc/apt/preferences.d/backports
 echo 'cgroup /sys/fs/cgroup cgroup defaults' > /etc/fstab
 mount -t cgroup cgroup /sys/fs/cgroup
 
-# file: /etc/dnsmasq.conf
-# interface=eth0
-# bind-interfaces
+mkdir /etc/dnsmasq.d
+echo 'interface=eth0'   > /etc/dnsmasq.d/vagrant
+echo 'bind-interfaces' >> /etc/dnsmasq.d/vagrant
+service dnsmasq restart
