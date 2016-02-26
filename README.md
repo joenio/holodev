@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/lappis-tools/holodev.svg?branch=master)](https://travis-ci.org/lappis-tools/holodev)
+
 # holodev
 
 ## Um holodeck para desenvolvedores de software
