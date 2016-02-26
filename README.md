@@ -7,7 +7,21 @@ em sistemas Debian.
 
 O nome `holodev` é uma referência ao Holodeck de Star Trek:
 
-* https://en.wikipedia.org/wiki/Holodeck
+* http://en.wikipedia.org/wiki/Holodeck
+
+Distribuições GNU/Linux suportadas:
+
+* Debian
+  * Squeezy (não suportado)
+  * Wheezy
+  * Jessie
+  * Stretch
+* Ubuntu
+  * Precise (não suportado)
+  * Trusty
+  * Utopic
+  * Vivid
+  * Wily
 
 ## sudo
 
@@ -62,16 +76,13 @@ O `holodev` possui uma pequena suíte de testes implementada com base no
 * http://github.com/kward/shunit2
 
 Para rodar estes testes é preciso instalar o `vagrant`, `virtualbox` e executar
-o comando `vagrant up`, os testes serão executados em:
-
-* Debian Squeezy
-* Debian Wheezy
-* Debian Jessie
-
-Em alguns casos pode ser necessário instalar o `virtualbox-guest-utils` e
-executar o seguinte:
+o comando `vagrant up`. Em alguns casos pode ser necessário instalar o
+`virtualbox-guest-utils` e executar o seguinte:
 
     dpkg-reconfigure virtualbox-dkms
+
+Utilize o script `development-setup.sh` (como root ou sudo) para instalar
+as dependencias de desenvolvimento em seu sistema.
 
 ## Autor
 
