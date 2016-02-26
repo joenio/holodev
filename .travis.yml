@@ -1,4 +1,5 @@
-language: bash
+language: generic
 sudo: required
+dist: trusty
 before_install: ./development-setup.sh
 script: make test
