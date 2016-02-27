@@ -20,9 +20,9 @@ test_code_returned_by_valid_arguments() {
 }
 
 test_create_and_destroy_container_with_default_options() {
-  ./holodev create > /dev/null 2>&1
+  ./holodev create
   assertEquals "should create LXC container!" 0 $?
-  ./holodev destroy > /dev/null 2>&1
+  ./holodev destroy
   assertEquals "should destroy LXC container!" 0 $?
 }
 
