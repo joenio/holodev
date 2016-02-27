@@ -1,5 +1,8 @@
 test:
-	$(foreach test,$(wildcard tests/*_test.sh), sh $(test))
+	$(foreach test,$(wildcard tests/*_test.sh), sh $(test);)
+
+test-minimal:
+	sh tests/minimal_test.sh
 
 test-vagrant:
 	vagrant up
