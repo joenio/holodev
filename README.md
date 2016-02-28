@@ -15,7 +15,7 @@ Distribuições GNU/Linux suportadas:
 
 * Debian
   * Squeezy (não suportado)
-  * Wheezy
+  * Wheezy (não suportado)
   * Jessie
   * Stretch
 * Ubuntu
