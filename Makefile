@@ -12,3 +12,4 @@ test-vagrant:
 		echo "";\
 		vagrant ssh $$machine -- 'cd /vagrant && make test';\
 	done
+	vagrant destroy --force

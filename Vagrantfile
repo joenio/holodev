@@ -9,7 +9,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     config.vm.define release do |machine|
       machine.vm.box = box
       machine.vm.provision 'shell', inline: 'cd /vagrant && ./development-setup.sh'
-
     end
   end
 end
