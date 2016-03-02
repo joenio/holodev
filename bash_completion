@@ -12,21 +12,21 @@ _holodev()
         if [ $holodev_command = "create" ]; then
           COMPREPLY=( $(compgen -W "--release --no-branch" -- ${cur}) )
         else
-	        COMPREPLY=( $(compgen -W "--no-branch" -- ${cur}) )
+          COMPREPLY=( $(compgen -W "--no-branch" -- ${cur}) )
         fi
         return 0
         ;;
       --no-branch)
         if [ $holodev_command = "create" ]; then
-	        COMPREPLY=( $(compgen -W "--release" -- ${cur}) )
+          COMPREPLY=( $(compgen -W "--release" -- ${cur}) )
         fi
         return 0
         ;;
       --release)
-	      COMPREPLY=( $(compgen -W "squeeze wheezy jessie stable testing sid" -- ${cur}) )
+        COMPREPLY=( $(compgen -W "squeeze wheezy jessie stable testing sid" -- ${cur}) )
         return 0
         ;;
-	    setup|--version|squeeze|wheezy|jessie|stable|testing|sid)
+      setup|--version|squeeze|wheezy|jessie|stable|testing|sid)
         return 0
         ;;
       *)
