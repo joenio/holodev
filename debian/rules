@@ -1,9 +1,4 @@
 #!/usr/bin/make -f
 
 %:
-	dh $@
-
-override_dh_install:
-	mkdir -p $(CURDIR)/debian/holodev/usr/share/bash-completion/completions
-	cp bash_completion $(CURDIR)/debian/holodev/usr/share/bash-completion/completions/holodev
-	dh_install
+	dh $@ --with bash-completion
