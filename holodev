@@ -6,15 +6,16 @@ CURRENT_DIRECTORY=$(basename `pwd`)
 MOUNT_POINT=$(echo $CURRENT_DIRECTORY | tr '[:lower:]' '[:upper:]')
 DEBIAN_RELEASE=wheezy
 INVALID_OPTIONS=false
+NO_GIT_BRANCH=false
+GIT_BRANCH=
+CONTAINER_NAME=
 
 is_under_git_control() {
   git rev-parse --is-inside-work-tree > /dev/null 2>&1
 }
 
 if is_under_git_control; then
-  CONTAINER_NAME=$CURRENT_DIRECTORY-$(git describe --contains --all HEAD)
-else
-  CONTAINER_NAME=$CURRENT_DIRECTORY
+  GIT_BRANCH=$(git describe --contains --all HEAD)
 fi
 
 for i in "$@"; do
@@ -29,8 +30,12 @@ for i in "$@"; do
       break
       ;;
     --no-branch)
-      CONTAINER_NAME=$CURRENT_DIRECTORY
+      NO_GIT_BRANCH=true
       shift
+      ;;
+    --branch)
+      GIT_BRANCH=$2
+      shift 2
       ;;
     --release)
       DEBIAN_RELEASE=$2
@@ -44,8 +49,11 @@ for i in "$@"; do
     jessie|sid|squeeze|stable|testing|wheezy)
       ;;
     *)
-      echo "W: unknown option '$i'"
-      INVALID_OPTIONS=true
+      BRANCH_EXISTS=$(git rev-parse --abbrev-ref --all | grep "^$i$")
+      if [ -z $BRANCH_EXISTS ]; then
+        echo "W: unknown option '$i'"
+        INVALID_OPTIONS=true
+      fi
       ;;
   esac
 done
@@ -63,6 +71,12 @@ if [ -z $COMMAND ]; then
   echo "* options = --no-branch" >&2
   echo "            --release <debian-codename>" >&2
   exit 2
+fi
+
+if $NO_GIT_BRANCH; then
+  CONTAINER_NAME=$CURRENT_DIRECTORY
+else
+  CONTAINER_NAME=$CURRENT_DIRECTORY-$GIT_BRANCH
 fi
 
 is_container_stopped() {

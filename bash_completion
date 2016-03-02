@@ -10,15 +10,18 @@ _holodev()
     case "${prev}" in
       attach|create|destroy|info|restart|run|start|stop)
         if [ $holodev_command = "create" ]; then
-          COMPREPLY=( $(compgen -W "--release --no-branch" -- ${cur}) )
+          COMPREPLY=( $(compgen -W "--release --no-branch --branch" -- ${cur}) )
         else
-          COMPREPLY=( $(compgen -W "--no-branch" -- ${cur}) )
+          COMPREPLY=( $(compgen -W "--no-branch --branch" -- ${cur}) )
         fi
         return 0
         ;;
-      --no-branch)
+      --no-branch|--branch)
         if [ $holodev_command = "create" ]; then
           COMPREPLY=( $(compgen -W "--release" -- ${cur}) )
+        fi
+        if [ ${prev} = "--branch" ]; then
+          COMPREPLY=( $(compgen -W "$(git rev-parse --abbrev-ref --all)" -- ${cur}) )
         fi
         return 0
         ;;
