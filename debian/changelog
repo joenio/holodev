@@ -1,7 +1,8 @@
-holodev (0.4) UNRELEASED; urgency=medium
+holodev (0.4) unstable; urgency=medium
 
+  * new `holodev list` command
   * fix bug with `holodev run` command
-  * latest lxc version needs lxc.mount option to be defined
+  * latest lxc version needs lxc.mount option
   * added unit tests using shunit2
   * added infrastructure to runnig tests under vagrant boxes
 
