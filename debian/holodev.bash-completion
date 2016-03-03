@@ -30,6 +30,9 @@ _holodev()
         return 0
         ;;
       list|setup|--version|squeeze|wheezy|jessie|stable|testing|sid)
+        if [ $holodev_command = "list" ]; then
+          COMPREPLY=( $(compgen -W "--all" -- ${cur}) )
+        fi
         return 0
         ;;
       *)
