@@ -9,6 +9,7 @@ INVALID_OPTIONS=false
 NO_GIT_BRANCH=false
 GIT_BRANCH=
 CONTAINER_NAME=
+LIST_ALL_CONTAINERS=false
 
 is_under_git_control() {
   git rev-parse --is-inside-work-tree > /dev/null 2>&1
@@ -20,7 +21,7 @@ fi
 
 for i in "$@"; do
   case $i in
-    attach|create|destroy|info|restart|start|setup|stop)
+    attach|create|destroy|info|list|restart|start|setup|stop)
       COMMAND=$i
       shift
       ;;
@@ -46,6 +47,10 @@ for i in "$@"; do
       echo 0.4
       exit 0
       ;;
+    --all)
+      LIST_ALL_CONTAINERS=true
+      shift
+      ;;
     jessie|sid|squeeze|stable|testing|wheezy)
       ;;
     *)
@@ -67,7 +72,7 @@ if [ -z $COMMAND ]; then
   echo "" >&2
   echo "Usage: `basename $0` <command> [options]" >&2
   echo "" >&2
-  echo "* command = {attach|create|destroy|info|restart|run|start|setup|stop}" >&2
+  echo "* command = {attach|create|destroy|info|list|restart|run|start|setup|stop}" >&2
   echo "* options = --no-branch" >&2
   echo "            --release <debian-codename>" >&2
   exit 2
@@ -216,6 +221,15 @@ do_stop() {
 do_destroy() {
   highlight_echo "destroing '$CONTAINER_NAME'"
   sudo lxc-destroy -n $CONTAINER_NAME -f
+}
+
+do_list() {
+  highlight_echo "listing containers"
+  if $LIST_ALL_CONTAINERS; then
+    sudo lxc-ls -1
+  else
+    sudo lxc-ls -1 $CURRENT_DIRECTORY
+  fi
 }
 
 do_$COMMAND $@

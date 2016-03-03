@@ -29,7 +29,7 @@ _holodev()
         COMPREPLY=( $(compgen -W "squeeze wheezy jessie stable testing sid" -- ${cur}) )
         return 0
         ;;
-      setup|--version|squeeze|wheezy|jessie|stable|testing|sid)
+      list|setup|--version|squeeze|wheezy|jessie|stable|testing|sid)
         return 0
         ;;
       *)
