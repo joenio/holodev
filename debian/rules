@@ -1,4 +1,11 @@
 #!/usr/bin/make -f
 
+override_dh_auto_test:
+ifeq ($(findstring nocheck,$(DEB_BUILD_OPTIONS)),)
+	make test
+else
+	@echo "skipping tests"
+endif
+
 %:
 	dh $@ --with bash-completion
