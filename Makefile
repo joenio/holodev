@@ -9,7 +9,7 @@ test-minimal:
 
 test-vagrant:
 	vagrant up
-	@for machine in $(shell vagrant status | awk '$$2 == "running" {print $$1}'); do\
+	for machine in $$(vagrant status | awk '$$2 == "running" {print $$1}'); do\
 		echo "";\
 		echo "+++ running holodev tests under $$machine +++";\
 		echo "";\
