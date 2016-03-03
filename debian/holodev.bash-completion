@@ -5,7 +5,7 @@ _holodev()
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
     holodev_command="${COMP_WORDS[1]}"
-    opts="attach create destroy info restart run start setup stop --version"
+    opts="attach create destroy info list restart run start setup stop --version"
 
     case "${prev}" in
       attach|create|destroy|info|restart|run|start|stop)
