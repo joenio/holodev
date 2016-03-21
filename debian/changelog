@@ -1,3 +1,9 @@
+holodev (0.4+1) unstable; urgency=medium
+
+  * declaring depends: libvirt-clients
+
+ --  <joenio@colivre.coop.br>  Mon, 21 Mar 2016 00:21:28 -0300
+
 holodev (0.4) unstable; urgency=medium
 
   * new `holodev list` command
