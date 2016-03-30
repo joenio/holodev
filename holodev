@@ -103,6 +103,7 @@ create_default_configuration_file() {
   sudo sh -c "echo lxc.network.type = veth >> /var/lib/lxc/$CONTAINER_NAME/config"
   sudo sh -c "echo lxc.network.link = virbr0 >> /var/lib/lxc/$CONTAINER_NAME/config"
   sudo sh -c "echo lxc.mount = /var/lib/lxc/$CONTAINER_NAME/fstab >> /var/lib/lxc/$CONTAINER_NAME/config"
+  sudo sh -c "echo lxc.aa_allow_incomplete = 1 >> /var/lib/lxc/$CONTAINER_NAME/config"
 }
 
 create_user_into_container() {
