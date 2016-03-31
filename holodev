@@ -89,6 +89,11 @@ is_container_stopped() {
   echo $CONTAINER_STATUS | grep STOPPED > /dev/null
 }
 
+is_apparmor_enabled() {
+  APPARMOR_STATUS=$(cat /sys/module/apparmor/parameters/enabled)
+  echo $CONTAINER_STATUS | grep -e '^Y$' > /dev/null
+}
+
 start_if_stopped() {
   if is_container_stopped; then
     do_start
@@ -103,7 +108,9 @@ create_default_configuration_file() {
   sudo sh -c "echo lxc.network.type = veth >> /var/lib/lxc/$CONTAINER_NAME/config"
   sudo sh -c "echo lxc.network.link = virbr0 >> /var/lib/lxc/$CONTAINER_NAME/config"
   sudo sh -c "echo lxc.mount = /var/lib/lxc/$CONTAINER_NAME/fstab >> /var/lib/lxc/$CONTAINER_NAME/config"
-  sudo sh -c "echo lxc.aa_allow_incomplete = 1 >> /var/lib/lxc/$CONTAINER_NAME/config"
+  if is_apparmor_enabled; then
+    sudo sh -c "echo lxc.aa_allow_incomplete = 1 >> /var/lib/lxc/$CONTAINER_NAME/config"
+  fi
 }
 
 create_user_into_container() {
