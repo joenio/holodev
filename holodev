@@ -10,6 +10,7 @@ NO_GIT_BRANCH=false
 GIT_BRANCH=
 CONTAINER_NAME=
 LIST_ALL_CONTAINERS=false
+OS=Debian
 
 is_under_git_control() {
   git rev-parse --is-inside-work-tree > /dev/null 2>&1
@@ -138,6 +139,11 @@ highlight_echo() {
   echo "${YELLOW}[HOLODEV] $message${ENDCOLOR}"
 }
 
+setup_libvirt_Debian() {
+  sudo virsh net-autostart default
+  sudo virsh net-start default
+}
+
 do_restart() {
   do_stop
   do_start
@@ -154,10 +160,6 @@ do_setup() {
     echo
     echo "sudo not found!" 1>&2
     echo "Please install sudo first and add yourself to the sudo group"
-    echo
-    echo "# apt-get update"
-    echo "# apt-get install sudo"
-    echo "# adduser $HOST_USER sudo"
     exit 4
   fi
 
@@ -165,17 +167,13 @@ do_setup() {
     echo
     echo "brctl not found!" 1>&2
     echo "Please install bridge-utils first and run 'setup' again"
-    echo
-    echo "# apt-get update"
-    echo "# apt-get install bridge-utils"
     exit 4
   fi
 
   virbr0=$(sudo brctl show | grep virbr0 2>&1)
   if [ -z "$virbr0" ]; then
     echo "[HOLODEV] configuring 'virbr0' virtual network device..."
-    sudo virsh net-autostart default
-    sudo virsh net-start default
+    setup_libvirt_$OS
   fi
 }
 
