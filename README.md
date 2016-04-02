@@ -24,6 +24,7 @@ Distribuições GNU/Linux suportadas:
   * Utopic (não testado)
   * Vivid
   * Wily
+* Archlinux
 
 ## sudo
 
@@ -45,6 +46,27 @@ E instale:
 
     # apt-get update
     # apt-get install holodev
+
+## Instalando no Archlinux
+
+Para instalar holodev no Archlinux é necessário ter acesso ao repositório do aur, e algum wrapper do pacman que enxergue o aur. Mas se já está usando Archlinux muito provavelmente já tem isso configurado.
+
+Para passar a ter acesso ao aur, edite o seguinte arquivo:
+
+    # vi /etc/pacman.conf
+
+E adicione:
+
+    [archlinuxfr]
+    SigLevel = Never
+    Server = http://repo.archlinux.fr/$arch
+
+E para instalar o yaourt siga as instruções [desse link](https://archlinux.fr/yaourt-en)
+
+Para finalmente instalar o holodev:
+
+    yaourt -Syy
+    yaourt -S holodev
 
 ## Usando
 
