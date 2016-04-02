@@ -158,6 +158,10 @@ setup_libvirt_Debian() {
   sudo virsh net-start default
 }
 
+setup_libvirt_Ubuntu() {
+  setup_libvirt_Debian
+}
+
 setup_libvirt_Arch() {
   sudo virsh net-autostart default
   sudo virsh net-start default
