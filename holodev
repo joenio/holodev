@@ -14,16 +14,12 @@ LIST_ALL_CONTAINERS=false
 if [ -f /etc/lsb-release ]; then
     . /etc/lsb-release
     OS=$DISTRIB_ID
-    VER=$DISTRIB_RELEASE
 elif [ -f /etc/debian_version ]; then
     OS=Debian
-    VER=$(cat /etc/debian_version)
 elif [ -f /etc/arch-release ]; then
     OS=Arch
-    VER=$(uname -r)
 else
     OS=$(uname -s)
-    VER=$(uname -r)
 fi
 
 is_under_git_control() {
@@ -171,6 +167,11 @@ setup_libvirt_Arch() {
   if [ ! -f /etc/lxc/default.conf.bkp ]; then
     sudo cp /etc/lxc/default.conf{,.bkp}
   fi
+sudo sh -c 'cat << EOF > /etc/lxc/default.conf
+lxc.network.type = veth
+lxc.network.link = virbr0
+lxc.network.ipv4 = 0.0.0.0/24
+EOF'
   sudo systemctl enable libvirtd.service libvirt-guests.service > /dev/null
   sudo systemctl restart libvirtd.service libvirt-guests.service > /dev/null
   while systemctl list-units  | grep libvirt-guests.service | grep -q "deactivating"; do
