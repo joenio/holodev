@@ -7,6 +7,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     vivid:     'ubuntu/vivid32',
     wily:      'ubuntu/wily32',
     archlinux: 'terrywang/archlinux',
+    opensuse:  'opensuse/openSUSE-42.1-x86_64',
  }.each do |release, box|
     config.vm.define release do |machine|
       machine.vm.box = box
