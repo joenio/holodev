@@ -14,18 +14,14 @@ LIST_ALL_CONTAINERS=false
 if [ -f /etc/lsb-release ]; then
     . /etc/lsb-release
     OS=$DISTRIB_ID
-    VER=$DISTRIB_RELEASE
 elif [ -f /etc/debian_version ]; then
     OS=Debian
-    VER=$(cat /etc/debian_version)
 elif [ -f /etc/arch-release ]; then
     OS=Arch
-    VER=$(uname -r)
 elif [ -f /etc/SuSE-release ]; then
     OS=Suse
 else
     OS=$(uname -s)
-    VER=$(uname -r)
 fi
 
 is_under_git_control() {
