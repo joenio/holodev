@@ -2,9 +2,8 @@ VAGRANTFILE_API_VERSION = '2'
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.network 'public_network', bridge: "wlan0"
   { jessie:    'deb/jessie-i386',
-    stretch:   'ederrm/debian-stretch-docker',
     trusty:    'ubuntu/trusty32',
-    vivid:     'ubuntu/vivid32',
+    vivid:     'boxcutter/ubuntu1504',
     wily:      'ubuntu/wily32',
     archlinux: 'terrywang/archlinux',
     opensuse:  'opensuse/openSUSE-42.1-x86_64',
