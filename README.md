@@ -25,6 +25,7 @@ Distribuições GNU/Linux suportadas:
   * Vivid
   * Wily
 * Archlinux
+* openSUSE
 
 ## sudo
 
