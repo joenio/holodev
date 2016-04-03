@@ -25,7 +25,7 @@ test_container_name_under_git_repository() {
   cd tests; tar -xf repository.tar; cd repository
   CONTAINER_NAME=$(../../holodev info 2> /dev/null | sed 's/.\+info about //' | sed "s/'//g")
   COUNT=$(echo $CONTAINER_NAME | grep -c 'repository-master')
-  assertEquals "container name isn't '$CONTAINER_NAME'" 1 $COUNT
+  assertEquals "container name '$CONTAINER_NAME' isn't 'repository-master'" 1 $COUNT
   cd ..; rm -rf repository; cd ..
 }
 
@@ -33,7 +33,7 @@ test_container_name_under_directory() {
   cd tests/directory
   CONTAINER_NAME=$(../../holodev info 2> /dev/null | sed 's/.\+info about //' | sed "s/'//g")
   COUNT=$(echo $CONTAINER_NAME | grep -c 'directory')
-  assertEquals "container name isn't '$CONTAINER_NAME'" 1 $COUNT
+  assertEquals "container name '$CONTAINER_NAME' isn't 'directory'" 1 $COUNT
 }
 
 . shunit2
