@@ -104,8 +104,12 @@ is_container_stopped() {
 }
 
 is_apparmor_enabled() {
-  APPARMOR_STATUS=$(cat /sys/module/apparmor/parameters/enabled)
-  echo $APPARMOR_STATUS | grep -e '^Y$' > /dev/null
+  if [ -f /sys/module/apparmor/parameters/enabled ]; then
+    APPARMOR_STATUS=$(cat /sys/module/apparmor/parameters/enabled)
+    echo $APPARMOR_STATUS | grep -e '^Y$' > /dev/null
+  else
+    false
+  fi
 }
 
 start_if_stopped() {
