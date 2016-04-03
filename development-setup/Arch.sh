@@ -1,3 +1,4 @@
+yaourt -Syy
 yaourt -S --force --noconfirm \
         bash-completion \
         bridge-utils \
@@ -8,5 +9,6 @@ yaourt -S --force --noconfirm \
         git \
         libvirt \
         lxc \
-        shunit2 \
         sudo \
+
+su - vagrant -c "yaourt -S --force --noconfirm shunit2"
