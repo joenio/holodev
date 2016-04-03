@@ -21,6 +21,8 @@ elif [ -f /etc/debian_version ]; then
 elif [ -f /etc/arch-release ]; then
     OS=Arch
     VER=$(uname -r)
+elif [ -f /etc/SuSE-release ]; then
+    OS=Suse
 else
     OS=$(uname -s)
     VER=$(uname -r)
@@ -106,7 +108,7 @@ is_container_stopped() {
 
 is_apparmor_enabled() {
   APPARMOR_STATUS=$(cat /sys/module/apparmor/parameters/enabled)
-  echo $CONTAINER_STATUS | grep -e '^Y$' > /dev/null
+  echo $APPARMOR_STATUS | grep -e '^Y$' > /dev/null
 }
 
 start_if_stopped() {
@@ -125,6 +127,9 @@ create_default_configuration_file() {
   sudo sh -c "echo lxc.mount = /var/lib/lxc/$CONTAINER_NAME/fstab >> /var/lib/lxc/$CONTAINER_NAME/config"
   if is_apparmor_enabled; then
     sudo sh -c "echo lxc.aa_allow_incomplete = 1 >> /var/lib/lxc/$CONTAINER_NAME/config"
+  fi
+  if [ -f /etc/apparmor.d/disabled/usr.bin.lxc-start ]; then
+    sudo sh -c "echo lxc.aa_profile = unconfined >> /var/lib/lxc/$CONTAINER_NAME/config"
   fi
 }
 
@@ -159,6 +164,10 @@ setup_libvirt_Debian() {
 }
 
 setup_libvirt_Ubuntu() {
+  setup_libvirt_Debian
+}
+
+setup_libvirt_Suse() {
   setup_libvirt_Debian
 }
 
