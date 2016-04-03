@@ -1,7 +1,7 @@
 Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: holodev
 Upstream-Contact: Joenio Costa <joenio@colivre.coop.br>
-Source: https://github.com/joenio/holodev
+Source: https://github.com/lappis-tools/holodev
 
 Files: *
 Copyright: 2015, Joenio Costa <joenio@colivre.coop.br>

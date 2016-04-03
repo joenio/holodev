@@ -7,8 +7,8 @@ Build-Depends: libvirt-bin | libvirt-clients, libvirt-bin | libvirt-daemon-syste
                bridge-utils, debootstrap, lxc, dnsmasq, ebtables, sudo,
                bash-completion
 Standards-Version: 3.9.6
-Homepage: https://github.com/joenio/holodev
-Vcs-Git: https://github.com/joenio/holodev.git
+Homepage: https://github.com/lappis-tools/holodev
+Vcs-Git: https://github.com/lappis-tools/holodev.git
 
 Package: holodev
 Architecture: all
@@ -16,6 +16,6 @@ Depends: libvirt-bin | libvirt-clients, libvirt-bin | libvirt-daemon-system,
          bridge-utils, debootstrap, lxc, sudo, git, bash-completion,
          ${misc:Depends}
 Suggests: cgmanager
-Description: ferramenta para ajudar criacao de linux containers
- holodev eh uma ferramenta escrita em shell-script para auxuliar
- a criacao de Linux Containers.
+Description: tool that makes it easier the creation Linux containers
+ A tool that makes it easier to create Linux containers for development using
+ Debian systems.
