@@ -10,6 +10,7 @@ NO_GIT_BRANCH=false
 GIT_BRANCH=
 CONTAINER_NAME=
 LIST_ALL_CONTAINERS=false
+LXC_VERSION=$(lxc-ls --version)
 
 # Detect OS
 if [ -f /etc/lsb-release ]; then
@@ -98,13 +99,19 @@ else
   CONTAINER_NAME=$CURRENT_DIRECTORY-$GIT_BRANCH
 fi
 
+compare_version() {
+  VER1=$(echo $1 | sed 's/\.//g')
+  VER2=$(echo $2 | sed 's/\.//g')
+  [ $VER1 -ge $VER2 ]
+}
+
 is_container_stopped() {
   CONTAINER_STATUS=$(sudo lxc-info -s -n $CONTAINER_NAME)
   echo $CONTAINER_STATUS | grep STOPPED > /dev/null
 }
 
 is_apparmor_enabled() {
-  if [ -f /sys/module/apparmor/parameters/enabled ]; then
+  if [ compare_version $LXC_VERSION '1.1.0' ] && [ -f /sys/module/apparmor/parameters/enabled ]; then
     APPARMOR_STATUS=$(cat /sys/module/apparmor/parameters/enabled)
     echo $APPARMOR_STATUS | grep -e '^Y$' > /dev/null
   else
