@@ -184,14 +184,7 @@ setup_libvirt_Suse() {
 }
 
 setup_libvirt_Arch() {
-  sudo virsh net-autostart default
-  sudo virsh net-start default
-  echo "It is possible that you are using Archlinux"
-  echo "Because of that, to continue setup, we need to change a lxc config file /etc/lxc/default.conf"
-  echo "Creating backup file /etc/lxc/default.conf.bkp"
-  if [ ! -f /etc/lxc/default.conf.bkp ]; then
-    sudo cp /etc/lxc/default.conf{,.bkp}
-  fi
+  setup_libvirt_Debian
   sudo systemctl enable libvirtd.service libvirt-guests.service > /dev/null
   sudo systemctl restart libvirtd.service libvirt-guests.service > /dev/null
   while systemctl list-units  | grep libvirt-guests.service | grep -q "deactivating"; do
