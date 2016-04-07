@@ -1,5 +1,5 @@
 Source: holodev
-Section: admin
+Section: devel
 Priority: optional
 Maintainer: Joenio Costa <joenio@colivre.coop.br>
 Build-Depends-Indep: debhelper (>= 8), shunit2
