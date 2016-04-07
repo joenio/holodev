@@ -171,8 +171,14 @@ highlight_echo() {
 }
 
 setup_libvirt_Debian() {
-  sudo virsh net-autostart default
-  sudo virsh net-start default
+  NET_AUTOSTART=$(sudo virsh net-info default | grep Autostart: | awk '{print $2}')
+  NET_ACTIVE=$(sudo virsh net-info default | grep Active: | awk '{print $2}')
+  if [ $NET_AUTOSTART != 'yes' ]; then
+    sudo virsh net-autostart default
+  fi
+  if [ $NET_ACTIVE != 'yes' ]; then
+    sudo virsh net-start default
+  fi
 }
 
 setup_libvirt_Ubuntu() {
@@ -184,12 +190,13 @@ setup_libvirt_Suse() {
 }
 
 setup_libvirt_Arch() {
-  setup_libvirt_Debian
-  sudo systemctl enable libvirtd.service libvirt-guests.service > /dev/null
-  sudo systemctl restart libvirtd.service libvirt-guests.service > /dev/null
   while systemctl list-units  | grep libvirt-guests.service | grep -q "deactivating"; do
     sleep 2s
   done
+  while [ ! -S /var/run/libvirt/libvirt-sock ]; do
+    sleep 2s
+  done
+  setup_libvirt_Debian
 }
 
 do_restart() {
