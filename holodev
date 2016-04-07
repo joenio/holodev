@@ -144,18 +144,18 @@ create_default_configuration_file() {
 create_user_into_container() {
   echo "creating my user into the container"
   if ! sudo grep $HOST_USER /var/lib/lxc/$CONTAINER_NAME/rootfs/etc/passwd > /dev/null; then
-    sudo lxc-attach -n $CONTAINER_NAME -- adduser --system --shell /bin/bash --home /$MOUNT_POINT --uid $HOST_UID --disabled-password --quiet $HOST_USER
-    sudo lxc-attach -n $CONTAINER_NAME -- chown $HOST_USER:nogroup /$MOUNT_POINT
+    sudo lxc-attach --clear-env -n $CONTAINER_NAME -- adduser --system --shell /bin/bash --home /$MOUNT_POINT --uid $HOST_UID --disabled-password --quiet $HOST_USER
+    sudo lxc-attach --clear-env -n $CONTAINER_NAME -- chown $HOST_USER:nogroup /$MOUNT_POINT
   fi
 }
 
 add_user_to_sudo() {
   echo "adding the user created in the container to sudo"
   if ! sudo test -e /var/lib/lxc/$CONTAINER_NAME/rootfs/etc/sudoers.d/sudo-group-nopasswd; then
-    sudo lxc-attach -n $CONTAINER_NAME -- apt-get update
-    sudo lxc-attach -n $CONTAINER_NAME -- apt-get -y install debian-archive-keyring sudo
-    sudo lxc-attach -n $CONTAINER_NAME -- sh -c "echo '%sudo ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/sudo-group-nopasswd"
-    sudo lxc-attach -n $CONTAINER_NAME -- adduser $HOST_USER sudo
+    sudo lxc-attach --clear-env -n $CONTAINER_NAME -- apt-get update
+    sudo lxc-attach --clear-env -n $CONTAINER_NAME -- apt-get -y install debian-archive-keyring sudo
+    sudo lxc-attach --clear-env -n $CONTAINER_NAME -- sh -c "echo '%sudo ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/sudo-group-nopasswd"
+    sudo lxc-attach --clear-env -n $CONTAINER_NAME -- adduser $HOST_USER sudo
   fi
 }
 
@@ -203,7 +203,7 @@ do_restart() {
 do_attach() {
   highlight_echo "opening console to '$CONTAINER_NAME'"
   start_if_stopped
-  sudo lxc-attach -n $CONTAINER_NAME -- su - $HOST_USER
+  sudo lxc-attach --clear-env -n $CONTAINER_NAME -- su - $HOST_USER
 }
 
 do_setup() {
@@ -259,7 +259,7 @@ do_run() {
   COMMAND=$@
   highlight_echo "running '$COMMAND' under '$CONTAINER_NAME'"
   start_if_stopped
-  sudo lxc-attach -n $CONTAINER_NAME -- su - $HOST_USER -c "$COMMAND"
+  sudo lxc-attach --clear-env -n $CONTAINER_NAME -- su - $HOST_USER -c "$COMMAND"
 }
 
 do_start() {
@@ -267,7 +267,7 @@ do_start() {
   sudo lxc-start -n $CONTAINER_NAME -d
   sudo lxc-wait -n $CONTAINER_NAME -s RUNNING
   # be sure network is up and running
-  sudo lxc-attach -n $CONTAINER_NAME -- service networking start
+  sudo lxc-attach --clear-env -n $CONTAINER_NAME -- service networking start
 }
 
 do_stop() {
