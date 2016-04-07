@@ -109,9 +109,11 @@ o comando `vagrant up`. Em alguns casos pode ser necessário instalar o
 Utilize o script `development-setup.sh` (como root ou sudo) para instalar
 as dependencias de desenvolvimento em seu sistema.
 
-## Autor
+## Autores
 
 * Joenio Costa <joenio@colivre.coop.br>
+* Carlos Coelho <carlos@pencillabs.com>
+* Lucas Severo <lucassalves65@gmail.com>
 
 ## Licença
 
