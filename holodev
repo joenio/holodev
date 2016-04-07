@@ -141,7 +141,7 @@ create_default_configuration_file() {
   fi
 }
 
-lxc_attath() {
+lxc_attach() {
   sudo lxc-attach --clear-env -n $CONTAINER_NAME -- $@
 }
 
