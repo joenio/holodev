@@ -111,7 +111,7 @@ is_container_stopped() {
 }
 
 is_apparmor_enabled() {
-  if [ compare_version $LXC_VERSION '1.1.0' ] && [ -f /sys/module/apparmor/parameters/enabled ]; then
+  if compare_version $LXC_VERSION '1.1.0' && [ -f /sys/module/apparmor/parameters/enabled ]; then
     APPARMOR_STATUS=$(cat /sys/module/apparmor/parameters/enabled)
     echo $APPARMOR_STATUS | grep -e '^Y$' > /dev/null
   else
