@@ -142,7 +142,11 @@ create_default_configuration_file() {
 }
 
 lxc_attach() {
-  sudo lxc-attach --clear-env -n $CONTAINER_NAME -- $@
+  if [ $OS = 'Arch' ]; then
+    sudo lxc-attach --clear-env -n $CONTAINER_NAME -- $@
+  else
+    sudo lxc-attach -n $CONTAINER_NAME -- $@
+  fi
 }
 
 create_user_into_container() {
