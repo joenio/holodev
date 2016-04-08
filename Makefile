@@ -8,11 +8,9 @@ test-minimal:
 	sh tests/minimal_test.sh
 
 test-vagrant:
-	vagrant up
-	for machine in $$(vagrant status | awk '$$2 == "running" {print $$1}'); do\
+	@for machine in $$(vagrant status | awk '$$2 == "running" {print $$1}'); do\
 		echo "";\
 		echo "+++ running holodev tests under $$machine +++";\
 		echo "";\
 		vagrant ssh $$machine -- 'cd /vagrant && make test';\
 	done
-	vagrant destroy --force
