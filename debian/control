@@ -6,7 +6,7 @@ Build-Depends-Indep: debhelper (>= 8), shunit2
 Build-Depends: libvirt-bin | libvirt-clients, libvirt-bin | libvirt-daemon-system,
                bridge-utils, debootstrap, lxc, dnsmasq, ebtables, sudo, git,
                bash-completion
-Standards-Version: 3.9.6
+Standards-Version: 3.9.7
 Homepage: https://github.com/lappis-tools/holodev
 Vcs-Git: https://github.com/lappis-tools/holodev.git
 
