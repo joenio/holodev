@@ -2,26 +2,25 @@
 
 # holodev
 
-## Um holodeck para desenvolvedores de software
+## A holodeck for software development
 
-Ferramenta para facilitar criação de Linux Containers para desenvolvimento
-em sistemas Debian.
+A tool to facilitate the creation of Linux Containers for developing Debian systems
 
-O nome `holodev` é uma referência ao Holodeck de Star Trek:
+The name `holodev` is a reference to the Holodeck from Star Trek:
 
 * http://en.wikipedia.org/wiki/Holodeck
 
-Distribuições GNU/Linux suportadas:
+Supported GNU/Linux distributions:
 
 * Debian
-  * Squeezy (não suportado)
-  * Wheezy (não suportado)
+  * Squeezy (not supported)
+  * Wheezy (not supported)
   * Jessie
   * Stretch
 * Ubuntu
-  * Precise (não suportado)
+  * Precise (not supported)
   * Trusty
-  * Utopic (não testado)
+  * Utopic (not tested)
   * Vivid
   * Wily
 * Archlinux
@@ -29,92 +28,90 @@ Distribuições GNU/Linux suportadas:
 
 ## sudo
 
-Infelizmente o suporte a "unprivileged containers" no Debian Jessie
-não é maduro o suficiente, então o `holodev` precisa do `sudo` para
-criar e executar "privileged containers".
+Unfortunately, support for "unprivileged containers" in Debian Jessie is not mature enough, then `holodev` needs` sudo` to create and run "privileged containers".
 
-## Instalando em Debian Jessie ou testing
+## Installing in Debian Jessie or testing
 
-Adicione o seguinte repositório ao sources.list:
+Add the following repository to the sources.list:
 
     deb http://debian.joenio.me unstable/
 
-Baixe a chave do repositório Debian:
+Download the key from the Debian repo:
 
     # wget -O - http://debian.joenio.me/signing.asc | apt-key add -
 
-E instale:
+Install:
 
     # apt-get update
     # apt-get install holodev
 
-## Instalando no Archlinux
+## Installing in Archlinux:
 
-Para instalar holodev no Archlinux é necessário ter acesso ao repositório do aur, e algum wrapper do pacman que enxergue o aur. Mas se já está usando Archlinux muito provavelmente já tem isso configurado.
+To install `holodev` on Archlinux it is necessary to have access to the AUR repository, and have any wrapper of pacman that watches AUR. If you are using Archlinux, it is almost safe to assume that you already have AUR and yaourt already configured to use. In any case, if you don't:
 
-Para passar a ter acesso ao aur, edite o seguinte arquivo:
+To watch AUR, edit the following file:
 
     # vi /etc/pacman.conf
 
-E adicione:
+Then add:
 
     [archlinuxfr]
     SigLevel = Never
     Server = http://repo.archlinux.fr/$arch
 
-E para instalar o yaourt siga as instruções [desse link](https://archlinux.fr/yaourt-en)
+To install `yaourt` follow this link instructions [desse link](https://archlinux.fr/yaourt-en)
 
-Para finalmente instalar o holodev:
+Finally, install holodev:
 
     yaourt -Syy
     yaourt -S holodev
 
-## Usando
+or:
 
-O script `holodev` cria Linux Containers usando o diretório corrente mais o
-branch `git` para compor o nome do container, ele cobre o cenário onde para
-cada projeto (diretório) existe um Linux Container, de forma que não seja
-necessário instalar dependencias de desenvolvimento em seu sistema real.
+    yaourt -S holodev-git
 
-Exemplo, no diretório `noosfero` na branch `master` será criado um container
-chamado `noosfero-master`:
+if you want the bleeding edge version.
 
-    ~/src/noosfero$ holodev create
+## Using 
 
-O container `noosfero-master` será criado com Debian Wheezy (padrão), caso
-deseje informar outra versão do Debian basta usar a opção `--release`:
 
-    ~/src/noosfero$ holodev create --release jessie
+The `holodev` script creates Linux Containers using the current directory plus the `git branch` to compose the container name, it covers the scenario where, for each project (directory), there is a Linux Container, so that it is not necessary to install development dependecies to your system.
 
-Caso não deseje utilizar o branch `git` para compor o nome do container use a
-opção `--no-branch`:
+For example, in the `noosfero` directory, in the branch `master` it will create a container called `noosfero-master`:
 
-    ~/src/noosfero$ holodev create --no-branch
+    ~ / Src / noosfero $ holodev create
 
-Criará um container chamado `noosfero`.
+The container `noosfero-master` will be created with Debian Wheezy (default). If you wish to inform another version of Debian just use the `--release`:
 
-## Desenvolvimento
+    ~ / Src / noosfero $ holodev create --release jessie
 
-O `holodev` possui uma pequena suíte de testes implementada com base no
-`shunit2`:
+If you do not want to use the branch `git` to compose the container name, use option `--no-branch`:
+
+    ~ / Src / noosfero $ holodev create --no-branch
+
+This will create a container called `noosfero`.
+
+## Development
+
+`holodev` has a small test suite implemented based on `Shunit2`:
 
 * http://github.com/kward/shunit2
 
-Para rodar estes testes é preciso instalar o `vagrant`, `virtualbox` e executar
-o comando `vagrant up`. Em alguns casos pode ser necessário instalar o
-`virtualbox-guest-utils` e executar o seguinte:
+To run these tests you need to install `vagrant`,` virtualbox` and run
+the command `vagrant up`. In some cases you may need to install
+`Virtualbox-guest-utils` and perform the following:
 
-    dpkg-reconfigure virtualbox-dkms
+    dpkg-reconfigure virtualbox-dkms
 
-Utilize o script `development-setup.sh` (como root ou sudo) para instalar
-as dependencias de desenvolvimento em seu sistema.
+Use the script `development-setup.sh` (as root or sudo) to install
+development dependencies on your system.
 
-## Autores
+## Authors
 
 * Joenio Costa <joenio@colivre.coop.br>
 * Carlos Coelho <carlos@pencillabs.com>
 * Lucas Severo <lucassalves65@gmail.com>
 
-## Licença
+## License
 
 GNU GPLv2+
