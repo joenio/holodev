@@ -79,32 +79,29 @@ The `holodev` script creates Linux Containers using the current directory plus t
 
 For example, in the `noosfero` directory, in the branch `master` it will create a container called `noosfero-master`:
 
-    ~ / Src / noosfero $ holodev create
+    ~/src/noosfero$ holodev create
 
 The container `noosfero-master` will be created with Debian Wheezy (default). If you wish to inform another version of Debian just use the `--release`:
 
-    ~ / Src / noosfero $ holodev create --release jessie
+    ~/src/noosfero$ holodev create --release jessie
 
 If you do not want to use the branch `git` to compose the container name, use option `--no-branch`:
 
-    ~ / Src / noosfero $ holodev create --no-branch
+    ~/src/noosfero$ holodev create --no-branch
 
 This will create a container called `noosfero`.
 
 ## Development
 
-`holodev` has a small test suite implemented based on `Shunit2`:
+`holodev` has a small test suite implemented based on `shunit2`:
 
 * http://github.com/kward/shunit2
 
-To run these tests you need to install `vagrant`,` virtualbox` and run
-the command `vagrant up`. In some cases you may need to install
-`Virtualbox-guest-utils` and perform the following:
+To run these tests you need to install `vagrant`,` virtualbox` and run the command `vagrant up`. In some cases you may need to install `Virtualbox-guest-utils` and perform the following:
 
     dpkg-reconfigure virtualbox-dkms
 
-Use the script `development-setup.sh` (as root or sudo) to install
-development dependencies on your system.
+Use the script `development-setup.sh` (as root or sudo) to install development dependencies on your system.
 
 ## Authors
 
