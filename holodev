@@ -162,7 +162,7 @@ add_user_to_sudo() {
   if ! sudo test -e /var/lib/lxc/$CONTAINER_NAME/rootfs/etc/sudoers.d/sudo-group-nopasswd; then
     lxc_attach apt-get update
     lxc_attach apt-get -y install debian-archive-keyring sudo
-    lxc_attach sh -c "echo '%sudo ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/sudo-group-nopasswd"
+    sudo sh -c "echo '%sudo ALL=(ALL) NOPASSWD:ALL' > /var/lib/lxc/$CONTAINER_NAME/rootfs/etc/sudoers.d/sudo-group-nopasswd"
     lxc_attach adduser $HOST_USER sudo
   fi
 }
