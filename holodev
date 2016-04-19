@@ -59,7 +59,7 @@ for i in "$@"; do
       ;;
     --version)
       shift
-      echo 0.5
+      echo 0.6
       exit 0
       ;;
     --all)
