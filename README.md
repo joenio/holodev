@@ -45,7 +45,29 @@ Install:
     # apt-get update
     # apt-get install holodev
 
-## Installing in Archlinux:
+## Installing in OpenSUSE
+
+First of all, you'll need to add our OBS repo into your system by following one of the commands below(select the one for your OpenSUSE release), as superuser:
+
+### Tumbleweed
+    # zypper ar http://download.opensuse.org/repositories/home:/chocoelho/openSUSE_Tumbleweed/home:chocoelho.repo
+
+### Leap
+    # zypper ar http://download.opensuse.org/repositories/home:/chocoelho/openSUSE_Leap_42.1/home:chocoelho.repo
+
+### 13.2
+    # zypper ar http://download.opensuse.org/repositories/home:/chocoelho/openSUSE_13.2/home:chocoelho.repo
+
+### 13.1
+    # zypper ar http://download.opensuse.org/repositories/home:/chocoelho/openSUSE_13.1/home:chocoelho.repo
+
+Then update your repo list:
+    # zypper ref
+
+And finally install holodev:
+    # zypper in holodev
+
+## Installing in Archlinux
 
 To install `holodev` on Archlinux it is necessary to have access to the AUR repository, and have any wrapper of pacman that watches AUR. If you are using Archlinux, it is almost safe to assume that you already have AUR and yaourt already configured to use. In any case, if you don't:
 
@@ -72,7 +94,7 @@ or:
 
 if you want the bleeding edge version.
 
-## Using 
+## Using
 
 
 The `holodev` script creates Linux Containers using the current directory plus the `git branch` to compose the container name, it covers the scenario where, for each project (directory), there is a Linux Container, so that it is not necessary to install development dependecies to your system.
