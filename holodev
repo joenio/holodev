@@ -270,12 +270,39 @@ do_run() {
   lxc_attach su - $HOST_USER -c "$COMMAND"
 }
 
+up_network() {
+  # be sure network is up and running
+  if lxc_attach which systemctl; then
+    RETRY=5
+    echo "checking if systemd is active"
+    while [ $RETRY -gt 0 ]; do
+      if lxc_attach systemctl 2>&1 | grep -q -e 'Unknown error -1'; then
+        RETRY=$(echo "$RETRY - 1" | bc)
+        sleep 1s
+      else
+        RETRY=0
+        SYSTEMD_IS_ACTIVE=true
+      fi
+    done
+    if [ $SYSTEMD_IS_ACTIVE ]; then
+      echo "waiting the system be operational"
+      IS_SYSTEM_RUNNING=$(lxc_attach systemctl is-system-running)
+      while ! echo $IS_SYSTEM_RUNNING | grep -q -e 'degraded' -e 'running'; do
+        sleep 1s
+        IS_SYSTEM_RUNNING=$(lxc_attach systemctl is-system-running)
+      done
+      lxc_attach systemctl enable systemd-networkd.service
+      lxc_attach systemctl start systemd-networkd.service
+    fi
+  fi
+  lxc_attach service networking start
+}
+
 do_start() {
   highlight_echo "starting '$CONTAINER_NAME'"
   sudo lxc-start -n $CONTAINER_NAME -d
   sudo lxc-wait -n $CONTAINER_NAME -s RUNNING
-  # be sure network is up and running
-  lxc_attach service networking start
+  up_network
 }
 
 do_stop() {
