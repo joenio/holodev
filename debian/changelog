@@ -1,8 +1,15 @@
+holodev (0.7) unstable; urgency=medium
+
+  * doing holodev compatible with LXC 2.0
+  * added --dummy option
+
+ -- Joenio Costa <joenio@colivre.coop.br>  Fri, 22 Apr 2016 19:37:14 -0300
+
 holodev (0.6) unstable; urgency=medium
 
   * bugfix release: solved bug adding user to sudo
 
- --  <joenio@colivre.coop.br>  Tue, 19 Apr 2016 13:26:30 -0300
+ -- Joenio Costa <joenio@colivre.coop.br>  Tue, 19 Apr 2016 13:26:30 -0300
 
 holodev (0.5) unstable; urgency=medium
 
