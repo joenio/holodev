@@ -1,45 +1,58 @@
 _holodev()
 {
-    local cur prev opts
+    local cur prev commands
     COMPREPLY=()
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
     holodev_command="${COMP_WORDS[1]}"
-    opts="attach create destroy info list restart run start setup stop --version"
+    commands="attach create destroy info list restart run start setup stop --version"
 
-    case "${prev}" in
-      attach|create|destroy|info|restart|run|start|stop)
-        if [ $holodev_command = "create" ]; then
-          COMPREPLY=( $(compgen -W "--release --no-branch --branch" -- ${cur}) )
-        else
-          COMPREPLY=( $(compgen -W "--no-branch --branch" -- ${cur}) )
-        fi
-        return 0
-        ;;
-      --no-branch|--branch)
-        if [ $holodev_command = "create" ]; then
-          COMPREPLY=( $(compgen -W "--release" -- ${cur}) )
-        fi
-        if [ ${prev} = "--branch" ]; then
-          COMPREPLY=( $(compgen -W "$(git rev-parse --abbrev-ref --all)" -- ${cur}) )
-        fi
-        return 0
-        ;;
-      --release)
-        COMPREPLY=( $(compgen -W "squeeze wheezy jessie stable testing sid" -- ${cur}) )
-        return 0
-        ;;
-      list|setup|--version|squeeze|wheezy|jessie|stable|testing|sid)
-        if [ $holodev_command = "list" ]; then
-          COMPREPLY=( $(compgen -W "--all" -- ${cur}) )
-        fi
-        return 0
-        ;;
-      *)
-        ;;
-    esac
+    opts_create()  { echo "--branch --no-branch --release --dummy"; }
+    opts_attach()  { echo "--branch --no-branch --dummy"; }
+    opts_destroy() { opts_attach; }
+    opts_info()    { opts_attach; }
+    opts_restart() { opts_attach; }
+    opts_run()     { opts_attach; }
+    opts_start()   { opts_attach; }
+    opts_stop()    { opts_attach; }
+    opts_list()    { echo "--all --dummy"; }
+    opts_setup()   { echo "--dummy"; }
 
-    COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+    for command in $commands; do
+      if [ -n $holodev_command ] && [ "$holodev_command" = $command ]; then
+        case "${prev}" in
+          --branch)
+            COMPREPLY=( $(compgen -W "$(git rev-parse --abbrev-ref --all)" -- ${cur}) )
+            return 0
+            ;;
+          --release)
+            COMPREPLY=( $(compgen -W "squeeze wheezy jessie stable testing sid" -- ${cur}) )
+            return 0
+            ;;
+        esac
+        case "${holodev_command}" in
+          create|attach|destroy|info|restart|run|start|setup|stop|list)
+            available_opts=
+            for opt in `opts_$holodev_command`; do
+              for word in ${COMP_WORDS[@]}; do
+                if [ -n "$opt" ] && [ "$opt" = "$word" ]; then
+                  opt=
+                fi
+              done
+              available_opts="$available_opts $opt"
+            done
+            COMPREPLY=( $(compgen -W "$available_opts" -- ${cur}) )
+            return 0
+            ;;
+          --version)
+            return 0
+            ;;
+        esac
+        return 0
+      fi
+    done
+
+    COMPREPLY=( $(compgen -W "${commands}" -- ${cur}) )
     return 0
 }
 complete -F _holodev holodev

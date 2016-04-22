@@ -11,6 +11,7 @@ GIT_BRANCH=
 CONTAINER_NAME=
 LIST_ALL_CONTAINERS=false
 LXC_VERSION=$(lxc-ls --version)
+DUMMY_MODE=false
 
 # Detect OS
 if [ -f /etc/lsb-release ]; then
@@ -61,6 +62,10 @@ for i in "$@"; do
       shift
       echo 0.6
       exit 0
+      ;;
+    --dummy)
+      DUMMY_MODE=true
+      shift
       ;;
     --all)
       LIST_ALL_CONTAINERS=true
@@ -127,31 +132,41 @@ start_if_stopped() {
 
 create_default_configuration_file() {
   echo "creating default configuration file"
-  sudo sh -c "sed -i 's/lxc.network./#lxc.network./' /var/lib/lxc/$CONTAINER_NAME/config"
-  sudo sh -c "echo >> /var/lib/lxc/$CONTAINER_NAME/config"
-  sudo sh -c "echo \# holodev configurations >> /var/lib/lxc/$CONTAINER_NAME/config"
-  sudo sh -c "echo lxc.network.type = veth >> /var/lib/lxc/$CONTAINER_NAME/config"
-  sudo sh -c "echo lxc.network.link = virbr0 >> /var/lib/lxc/$CONTAINER_NAME/config"
-  sudo sh -c "echo lxc.mount = /var/lib/lxc/$CONTAINER_NAME/fstab >> /var/lib/lxc/$CONTAINER_NAME/config"
+  run sh -c "sed -i 's/lxc.network./#lxc.network./' /var/lib/lxc/$CONTAINER_NAME/config"
+  run sh -c "echo >> /var/lib/lxc/$CONTAINER_NAME/config"
+  run sh -c "echo \# holodev configurations >> /var/lib/lxc/$CONTAINER_NAME/config"
+  run sh -c "echo lxc.network.type = veth >> /var/lib/lxc/$CONTAINER_NAME/config"
+  run sh -c "echo lxc.network.link = virbr0 >> /var/lib/lxc/$CONTAINER_NAME/config"
+  run sh -c "echo lxc.mount = /var/lib/lxc/$CONTAINER_NAME/fstab >> /var/lib/lxc/$CONTAINER_NAME/config"
   if is_apparmor_enabled; then
-    sudo sh -c "echo lxc.aa_allow_incomplete = 1 >> /var/lib/lxc/$CONTAINER_NAME/config"
+    run sh -c "echo lxc.aa_allow_incomplete = 1 >> /var/lib/lxc/$CONTAINER_NAME/config"
   fi
   if [ -f /etc/apparmor.d/disabled/usr.bin.lxc-start ]; then
-    sudo sh -c "echo lxc.aa_profile = unconfined >> /var/lib/lxc/$CONTAINER_NAME/config"
+    run sh -c "echo lxc.aa_profile = unconfined >> /var/lib/lxc/$CONTAINER_NAME/config"
+  fi
+}
+
+run() {
+  CYAN=$(tput setaf 6)
+  ENDCOLOR=$(tput sgr0)
+  if $DUMMY_MODE; then
+    echo "${CYAN}[HOLODEV] sudo $@${ENDCOLOR}"
+  else
+    sudo $@
   fi
 }
 
 lxc_attach() {
   if [ $OS = 'Arch' ]; then
-    sudo lxc-attach --clear-env -n $CONTAINER_NAME -- $@
+    run lxc-attach --clear-env -n $CONTAINER_NAME -- $@
   else
-    sudo lxc-attach -n $CONTAINER_NAME -- $@
+    run lxc-attach -n $CONTAINER_NAME -- $@
   fi
 }
 
 create_user_into_container() {
   echo "creating my user into the container"
-  if ! sudo grep $HOST_USER /var/lib/lxc/$CONTAINER_NAME/rootfs/etc/passwd > /dev/null; then
+  if $DUMMY_MODE || ! sudo grep $HOST_USER /var/lib/lxc/$CONTAINER_NAME/rootfs/etc/passwd > /dev/null; then
     lxc_attach adduser --system --shell /bin/bash --home /$MOUNT_POINT --uid $HOST_UID --disabled-password --quiet $HOST_USER
     lxc_attach chown $HOST_USER:nogroup /$MOUNT_POINT
   fi
@@ -162,7 +177,7 @@ add_user_to_sudo() {
   if ! sudo test -e /var/lib/lxc/$CONTAINER_NAME/rootfs/etc/sudoers.d/sudo-group-nopasswd; then
     lxc_attach apt-get update
     lxc_attach apt-get -y install debian-archive-keyring sudo
-    sudo sh -c "echo '%sudo ALL=(ALL) NOPASSWD:ALL' > /var/lib/lxc/$CONTAINER_NAME/rootfs/etc/sudoers.d/sudo-group-nopasswd"
+    run sh -c "echo '%sudo ALL=(ALL) NOPASSWD:ALL' > /var/lib/lxc/$CONTAINER_NAME/rootfs/etc/sudoers.d/sudo-group-nopasswd"
     lxc_attach adduser $HOST_USER sudo
   fi
 }
@@ -241,15 +256,15 @@ do_create() {
 
   # create container, deboostrap debian
   if [ ! -d /var/lib/lxc/$CONTAINER_NAME ]; then
-    sudo lxc-create -n $CONTAINER_NAME -t debian -- -r $DEBIAN_RELEASE
+    run lxc-create -n $CONTAINER_NAME -t debian -- -r $DEBIAN_RELEASE
   fi
 
   # mount current curectory (suppose is the source-code of project i'm working on) into container
-  sudo sh -c "echo $(pwd) /var/lib/lxc/$CONTAINER_NAME/rootfs/$MOUNT_POINT none bind 0 0 > /var/lib/lxc/$CONTAINER_NAME/fstab"
+  run sh -c "echo $(pwd) /var/lib/lxc/$CONTAINER_NAME/rootfs/$MOUNT_POINT none bind 0 0 > /var/lib/lxc/$CONTAINER_NAME/fstab"
 
   # create directory into container to mount project sources I'm working on
   if ! sudo test -d /var/lib/lxc/$CONTAINER_NAME/rootfs/$MOUNT_POINT; then
-    sudo mkdir /var/lib/lxc/$CONTAINER_NAME/rootfs/$MOUNT_POINT
+    run mkdir /var/lib/lxc/$CONTAINER_NAME/rootfs/$MOUNT_POINT
   fi
 
   create_default_configuration_file
@@ -260,7 +275,7 @@ do_create() {
 
 do_info() {
   highlight_echo "getting info about '$CONTAINER_NAME'"
-  sudo lxc-info -n $CONTAINER_NAME
+  run lxc-info -n $CONTAINER_NAME
 }
 
 do_run() {
@@ -300,27 +315,27 @@ up_network() {
 
 do_start() {
   highlight_echo "starting '$CONTAINER_NAME'"
-  sudo lxc-start -n $CONTAINER_NAME -d
-  sudo lxc-wait -n $CONTAINER_NAME -s RUNNING
+  run lxc-start -n $CONTAINER_NAME -d
+  run lxc-wait -n $CONTAINER_NAME -s RUNNING
   up_network
 }
 
 do_stop() {
   highlight_echo "stopping '$CONTAINER_NAME'"
-  sudo lxc-stop -n $CONTAINER_NAME
+  run lxc-stop -n $CONTAINER_NAME
 }
 
 do_destroy() {
   highlight_echo "destroing '$CONTAINER_NAME'"
-  sudo lxc-destroy -n $CONTAINER_NAME -f
+  run lxc-destroy -n $CONTAINER_NAME -f
 }
 
 do_list() {
   highlight_echo "listing containers"
   if $LIST_ALL_CONTAINERS; then
-    sudo lxc-ls -1
+    run lxc-ls -1
   else
-    sudo lxc-ls -1 $CURRENT_DIRECTORY
+    run lxc-ls -1 $CURRENT_DIRECTORY
   fi
 }
 
