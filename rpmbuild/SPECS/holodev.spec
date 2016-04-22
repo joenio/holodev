@@ -1,15 +1,45 @@
-Name:                   holodev
-Summary:                A holodeck developers
-Version:                0.6
-Release:                4%{?dist}
-License:                GPL-2.0+
-Source0:                https://github.com/lappis-tools/%{name}/archive/%{version}.tar.gz#/%{name}-%{version}.tar.gz
-Url:                    https://github.com/lappis-tools/holodev
-BuildArch:              noarch
-BuildRoot:              %{_tmppath}/%{name}-%{version}-build
-Group:                  Development/Tools
-BuildRequires:          bridge-utils, debootstrap, lxc, sudo, git, bash-completion, shunit2, ebtables, dnsmasq
-Requires:               libvirt >= 1.3.2, bridge-utils, debootstrap, lxc, sudo, git, bash-completion
+#
+# spec file for package holodev
+#
+# Copyright (c) 2016 SUSE LINUX GmbH, Nuernberg, Germany.
+#
+# All modifications and additions to the file contributed by third parties
+# remain the property of their copyright owners, unless otherwise agreed
+# upon. The license for this file, and modifications and additions to the
+# file, is the same license as for the pristine package itself (unless the
+# license for the pristine package is not an Open Source License, in which
+# case the license is the MIT License). An "Open Source License" is a
+# license that conforms to the Open Source Definition (Version 1.9)
+# published by the Open Source Initiative.
+
+# Please submit bugfixes or comments via http://bugs.opensuse.org/
+#
+
+
+Name:           holodev
+Version:        0.6
+Release:        4%{?dist}
+Summary:        A holodeck developers
+License:        GPL-2.0+
+Group:          Development/Tools/Other
+Url:            https://github.com/lappis-tools/holodev
+Source0:        https://github.com/lappis-tools/%{name}/archive/%{version}.tar.gz#/%{name}-%{version}.tar.gz
+BuildRequires:  bash-completion
+BuildRequires:  bridge-utils
+BuildRequires:  dnsmasq
+BuildRequires:  ebtables
+BuildRequires:  git
+BuildRequires:  lxc
+BuildRequires:  shunit2
+BuildRequires:  sudo
+Requires:       bash-completion
+Requires:       bridge-utils
+Requires:       git
+Requires:       libvirt >= 1.3.2
+Requires:       lxc
+Requires:       sudo
+BuildRoot:      %{_tmppath}/%{name}-%{version}-build
+BuildArch:      noarch
 
 %description
 Tool that makes it easier to create Linux containers for development using Debian systems.
@@ -20,20 +50,16 @@ Tool that makes it easier to create Linux containers for development using Debia
 %build
 
 %install
-rm -rf $RPM_BUILD_ROOT
 # install holodev binary
-install -d -m 0755 $RPM_BUILD_ROOT%{_bindir}
-install -m 0755 holodev $RPM_BUILD_ROOT%{_bindir}/holodev
+install -d -m 0755 %{buildroot}%{_bindir}
+install -m 0755 holodev %{buildroot}%{_bindir}/holodev
 
 # install holodev bash-completion
-install -d -m 0755 $RPM_BUILD_ROOT%{_sysconfdir}/bash_completion.d
-install -m 0644 -T debian/holodev.bash-completion $RPM_BUILD_ROOT%{_sysconfdir}/bash_completion.d/holodev.bash-completion
+install -d -m 0755 %{buildroot}%{_sysconfdir}/bash_completion.d
+install -m 0644 -T debian/holodev.bash-completion %{buildroot}%{_sysconfdir}/bash_completion.d/holodev.bash-completion
 
 %post
 holodev setup
-
-%clean
-rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root)
@@ -42,14 +68,3 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/holodev
 
 %changelog
-* Tue Apr 19 2016 Carlos Coêlho <carlospecter@gmail.com> - 0.6-4
-- Update to 0.6
-
-* Thu Mar 31 2016 Carlos Coêlho <carlospecter@gmail.com> - 0.4-3
-- Added post install setup
-
-* Thu Mar 31 2016 Carlos Coelho <carlospecter@gmail.com> - 0.4-2
-- Added bash-completion
-
-* Thu Mar 31 2016 Carlos Coêlho <carlospecter@gmail.com> - 0.4-1
-- Initial RPM release
