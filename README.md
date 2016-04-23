@@ -30,7 +30,7 @@ Supported GNU/Linux distributions:
 
 Unfortunately, support for "unprivileged containers" in Debian Jessie is not mature enough, then `holodev` needs` sudo` to create and run "privileged containers".
 
-## Installing in Debian Jessie or testing
+## Installing in Debian
 
 Add the following repository to the sources.list:
 
@@ -95,7 +95,6 @@ or:
 if you want the bleeding edge version.
 
 ## Using
-
 
 The `holodev` script creates Linux Containers using the current directory plus the `git branch` to compose the container name, it covers the scenario where, for each project (directory), there is a Linux Container, so that it is not necessary to install development dependecies to your system.
 
