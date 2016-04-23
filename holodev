@@ -114,8 +114,24 @@ compare_version() {
   [ $VER1 -ge $VER2 ]
 }
 
+run_sh() {
+  if ! $DUMMY_MODE; then
+    sudo sh -c "$@"
+  fi
+}
+
+run() {
+  CYAN=$(tput setaf 6)
+  ENDCOLOR=$(tput sgr0)
+  if $DUMMY_MODE; then
+    echo "${CYAN}[HOLODEV] sudo $@${ENDCOLOR}"
+  else
+    sudo $@
+  fi
+}
+
 is_container_stopped() {
-  CONTAINER_STATUS=$(sudo lxc-info -s -n $CONTAINER_NAME)
+  CONTAINER_STATUS=$(run lxc-info -s -n $CONTAINER_NAME)
   echo $CONTAINER_STATUS | grep STOPPED > /dev/null
 }
 
@@ -134,29 +150,39 @@ start_if_stopped() {
   fi
 }
 
-create_default_configuration_file() {
-  echo "creating default configuration file"
-  run sh -c "sed -i 's/lxc.network./#lxc.network./' /var/lib/lxc/$CONTAINER_NAME/config"
-  run sh -c "echo >> /var/lib/lxc/$CONTAINER_NAME/config"
-  run sh -c "echo \# holodev configurations >> /var/lib/lxc/$CONTAINER_NAME/config"
-  run sh -c "echo lxc.network.type = veth >> /var/lib/lxc/$CONTAINER_NAME/config"
-  run sh -c "echo lxc.network.link = virbr0 >> /var/lib/lxc/$CONTAINER_NAME/config"
-  run sh -c "echo lxc.mount = /var/lib/lxc/$CONTAINER_NAME/fstab >> /var/lib/lxc/$CONTAINER_NAME/config"
-  if is_apparmor_enabled; then
-    run sh -c "echo lxc.aa_allow_incomplete = 1 >> /var/lib/lxc/$CONTAINER_NAME/config"
-  fi
-  if [ -f /etc/apparmor.d/disabled/usr.bin.lxc-start ]; then
-    run sh -c "echo lxc.aa_profile = unconfined >> /var/lib/lxc/$CONTAINER_NAME/config"
+info() {
+  GRAY=$(tput bold; tput setaf 8)
+  ENDCOLOR=$(tput sgr0)
+  if ! $DUMMY_MODE; then
+    echo "${GRAY}[HOLODEV] $@${ENDCOLOR}"
   fi
 }
 
-run() {
-  CYAN=$(tput setaf 6)
+highlight() {
+  YELLOW=$(tput bold; tput setaf 3)
   ENDCOLOR=$(tput sgr0)
-  if $DUMMY_MODE; then
-    echo "${CYAN}[HOLODEV] sudo $@${ENDCOLOR}"
-  else
-    sudo $@
+  echo "${YELLOW}[HOLODEV] $@${ENDCOLOR}"
+}
+
+error() {
+  RED=$(tput bold; tput setaf 1)
+  ENDCOLOR=$(tput sgr0)
+  echo "${RED}[HOLODEV] $@${ENDCOLOR}"
+}
+
+create_default_configuration_file() {
+  info "creating default configuration file"
+  run_sh "sed -i 's/lxc.network./#lxc.network./' /var/lib/lxc/$CONTAINER_NAME/config"
+  run_sh "echo >> /var/lib/lxc/$CONTAINER_NAME/config"
+  run_sh "echo \# holodev configurations >> /var/lib/lxc/$CONTAINER_NAME/config"
+  run_sh "echo lxc.network.type = veth >> /var/lib/lxc/$CONTAINER_NAME/config"
+  run_sh "echo lxc.network.link = virbr0 >> /var/lib/lxc/$CONTAINER_NAME/config"
+  run_sh "echo lxc.mount = /var/lib/lxc/$CONTAINER_NAME/fstab >> /var/lib/lxc/$CONTAINER_NAME/config"
+  if is_apparmor_enabled; then
+    run_sh "echo lxc.aa_allow_incomplete = 1 >> /var/lib/lxc/$CONTAINER_NAME/config"
+  fi
+  if [ -f /etc/apparmor.d/disabled/usr.bin.lxc-start ]; then
+    run_sh "echo lxc.aa_profile = unconfined >> /var/lib/lxc/$CONTAINER_NAME/config"
   fi
 }
 
@@ -169,7 +195,7 @@ lxc_attach() {
 }
 
 create_user_into_container() {
-  echo "creating my user into the container"
+  info "creating my user into the container"
   if $DUMMY_MODE || ! sudo grep $HOST_USER /var/lib/lxc/$CONTAINER_NAME/rootfs/etc/passwd > /dev/null; then
     lxc_attach adduser --system --shell /bin/bash --home /$MOUNT_POINT --uid $HOST_UID --disabled-password --quiet $HOST_USER
     lxc_attach chown $HOST_USER:nogroup /$MOUNT_POINT
@@ -177,20 +203,13 @@ create_user_into_container() {
 }
 
 add_user_to_sudo() {
-  echo "adding the user created in the container to sudo"
+  info "adding the user created in the container to sudo"
   if ! sudo test -e /var/lib/lxc/$CONTAINER_NAME/rootfs/etc/sudoers.d/sudo-group-nopasswd; then
     lxc_attach apt-get update
     lxc_attach apt-get -y install debian-archive-keyring sudo
-    run sh -c "echo '%sudo ALL=(ALL) NOPASSWD:ALL' > /var/lib/lxc/$CONTAINER_NAME/rootfs/etc/sudoers.d/sudo-group-nopasswd"
+    run_sh "echo '%sudo ALL=(ALL) NOPASSWD:ALL' > /var/lib/lxc/$CONTAINER_NAME/rootfs/etc/sudoers.d/sudo-group-nopasswd"
     lxc_attach adduser $HOST_USER sudo
   fi
-}
-
-highlight_echo() {
-  message=$@
-  YELLOW=$(tput bold; tput setaf 3)
-  ENDCOLOR=$(tput sgr0)
-  echo "${YELLOW}[HOLODEV] $message${ENDCOLOR}"
 }
 
 setup_libvirt_Debian() {
@@ -228,7 +247,7 @@ do_restart() {
 }
 
 do_attach() {
-  highlight_echo "opening console to '$CONTAINER_NAME'"
+  highlight "opening console to '$CONTAINER_NAME'"
   start_if_stopped
   lxc_attach su - $HOST_USER
 }
@@ -236,27 +255,27 @@ do_attach() {
 do_setup() {
   which sudo > /dev/null; if [ $? -ne 0 ]; then
     echo
-    echo "sudo not found!" 1>&2
-    echo "Please install sudo first and add yourself to the sudo group"
+    error "sudo not found!" 1>&2
+    error "Please install sudo first and add yourself to the sudo group"
     exit 4
   fi
 
   sudo which brctl > /dev/null; if [ $? -ne 0 ]; then
     echo
-    echo "brctl not found!" 1>&2
-    echo "Please install bridge-utils first and run 'setup' again"
+    error "brctl not found!" 1>&2
+    error "Please install bridge-utils first and run 'setup' again"
     exit 4
   fi
 
   virbr0=$(sudo brctl show | grep virbr0 2>&1)
   if [ -z "$virbr0" ]; then
-    echo "[HOLODEV] configuring 'virbr0' virtual network device..."
+    info "configuring 'virbr0' virtual network device..."
     setup_libvirt_$OS
   fi
 }
 
 do_create() {
-  highlight_echo "creating '$CONTAINER_NAME' with '$DEBIAN_RELEASE'"
+  highlight "creating '$CONTAINER_NAME' with '$DEBIAN_RELEASE'"
 
   # create container, deboostrap debian
   if [ ! -d /var/lib/lxc/$CONTAINER_NAME ]; then
@@ -264,11 +283,11 @@ do_create() {
   fi
 
   # mount current curectory (suppose is the source-code of project i'm working on) into container
-  run sh -c "echo $(pwd) /var/lib/lxc/$CONTAINER_NAME/rootfs/$MOUNT_POINT none bind 0 0 > /var/lib/lxc/$CONTAINER_NAME/fstab"
+  run_sh "echo $(pwd) /var/lib/lxc/$CONTAINER_NAME/rootfs/$MOUNT_POINT none bind 0 0 > /var/lib/lxc/$CONTAINER_NAME/fstab"
 
   # create directory into container to mount project sources I'm working on
   if ! sudo test -d /var/lib/lxc/$CONTAINER_NAME/rootfs/$MOUNT_POINT; then
-    run mkdir /var/lib/lxc/$CONTAINER_NAME/rootfs/$MOUNT_POINT
+    run_sh "mkdir /var/lib/lxc/$CONTAINER_NAME/rootfs/$MOUNT_POINT"
   fi
 
   create_default_configuration_file
@@ -278,13 +297,13 @@ do_create() {
 }
 
 do_info() {
-  highlight_echo "getting info about '$CONTAINER_NAME'"
+  highlight "getting info about '$CONTAINER_NAME'"
   run lxc-info -n $CONTAINER_NAME
 }
 
 do_run() {
   COMMAND=$@
-  highlight_echo "running '$COMMAND' under '$CONTAINER_NAME'"
+  highlight "running '$COMMAND' under '$CONTAINER_NAME'"
   start_if_stopped
   lxc_attach su - $HOST_USER -c "$COMMAND"
 }
@@ -293,7 +312,7 @@ up_network() {
   # be sure network is up and running
   if lxc_attach which systemctl; then
     RETRY=5
-    echo "checking if systemd is active"
+    info "checking if systemd is active"
     while [ $RETRY -gt 0 ]; do
       if lxc_attach systemctl 2>&1 | grep -q -e 'Unknown error -1'; then
         RETRY=$(echo "$RETRY - 1" | bc)
@@ -304,7 +323,7 @@ up_network() {
       fi
     done
     if [ $SYSTEMD_IS_ACTIVE ]; then
-      echo "waiting the system be operational"
+      info "waiting the system be operational"
       IS_SYSTEM_RUNNING=$(lxc_attach systemctl is-system-running)
       while ! echo $IS_SYSTEM_RUNNING | grep -q -e 'degraded' -e 'running'; do
         sleep 1s
@@ -318,24 +337,24 @@ up_network() {
 }
 
 do_start() {
-  highlight_echo "starting '$CONTAINER_NAME'"
+  highlight "starting '$CONTAINER_NAME'"
   run lxc-start -n $CONTAINER_NAME -d
   run lxc-wait -n $CONTAINER_NAME -s RUNNING
   up_network
 }
 
 do_stop() {
-  highlight_echo "stopping '$CONTAINER_NAME'"
+  highlight "stopping '$CONTAINER_NAME'"
   run lxc-stop -n $CONTAINER_NAME
 }
 
 do_destroy() {
-  highlight_echo "destroing '$CONTAINER_NAME'"
+  highlight "destroing '$CONTAINER_NAME'"
   run lxc-destroy -n $CONTAINER_NAME -f
 }
 
 do_list() {
-  highlight_echo "listing containers"
+  highlight "listing containers"
   if $LIST_ALL_CONTAINERS; then
     run lxc-ls -1
   else
