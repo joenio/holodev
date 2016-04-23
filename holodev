@@ -94,7 +94,11 @@ if [ -z $COMMAND ]; then
   echo "" >&2
   echo "* command = {attach|create|destroy|info|list|restart|run|start|setup|stop}" >&2
   echo "* options = --no-branch" >&2
+  echo "            --branch <branch-name>" >&2
+  echo "            --dummy" >&2
   echo "            --release <debian-codename>" >&2
+  echo "            --version" >&2
+  echo "            --all" >&2
   exit 2
 fi
 
