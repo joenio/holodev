@@ -311,7 +311,7 @@ do_run() {
 
 up_network() {
   # be sure network is up and running
-  if lxc_attach which systemctl; then
+  if lxc_attach which systemctl > /dev/null; then
     RETRY=5
     info "checking if systemd is active"
     while [ $RETRY -gt 0 ]; do
