@@ -12,6 +12,7 @@ CONTAINER_NAME=
 LIST_ALL_CONTAINERS=false
 LXC_VERSION=$(lxc-ls --version)
 DUMMY_MODE=false
+LANG=C
 
 # Detect OS
 if [ -f /etc/lsb-release ]; then
