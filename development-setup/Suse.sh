@@ -9,6 +9,7 @@ zypper --non-interactive in \
         lxc \
         shunit2 \
         sudo \
+        which \
 
 echo 'PATH=$PATH:/usr/share/shunit2/src' >> /etc/profile.local
 
