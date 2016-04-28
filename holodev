@@ -284,7 +284,7 @@ do_create() {
   fi
 
   # mount current curectory (suppose is the source-code of project i'm working on) into container
-  run_sh "echo $(pwd) /var/lib/lxc/$CONTAINER_NAME/rootfs/$MOUNT_POINT none bind 0 0 > /var/lib/lxc/$CONTAINER_NAME/fstab"
+  run_sh "echo `pwd` /var/lib/lxc/$CONTAINER_NAME/rootfs/$MOUNT_POINT none bind 0 0 > /var/lib/lxc/$CONTAINER_NAME/fstab"
 
   # create directory into container to mount project sources I'm working on
   if ! sudo test -d /var/lib/lxc/$CONTAINER_NAME/rootfs/$MOUNT_POINT; then
