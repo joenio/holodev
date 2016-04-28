@@ -10,6 +10,7 @@ zypper --non-interactive in \
         shunit2 \
         sudo \
         which \
+        make \
 
 echo 'PATH=$PATH:/usr/share/shunit2/src' >> /etc/profile.local
 
