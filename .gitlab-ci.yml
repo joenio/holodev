@@ -1,0 +1,6 @@
+before_script:
+  - ./development-setup.sh
+
+minimal:
+  script:
+    - make test-minimal
