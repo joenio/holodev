@@ -9,3 +9,18 @@ minimal-debian-jessie:
   image: debian:jessie
   script:
     - make test-minimal
+
+minimal-debian-latest:
+  image: debian:latest
+  script:
+    - make test-minimal
+
+minimal-debian-testing:
+  image: debian:testing
+  script:
+    - make test-minimal
+
+minimal-debian-unstable:
+  image: debian:unstble
+  script:
+    - make test-minimal
