@@ -4,3 +4,8 @@ before_script:
 minimal:
   script:
     - make test-minimal
+
+minimal-debian-jessie:
+  image: debian:jessie
+  script:
+    - make test-minimal
