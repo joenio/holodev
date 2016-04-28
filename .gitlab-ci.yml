@@ -5,6 +5,8 @@ minimal:
   script:
     - make test-minimal
 
+# Docker Debian
+
 minimal-debian-jessie:
   image: debian:jessie
   script:
@@ -21,9 +23,11 @@ minimal-debian-testing:
     - make test-minimal
 
 minimal-debian-unstable:
-  image: debian:unstble
+  image: debian:unstable
   script:
     - make test-minimal
+
+# Docker Ubuntu
 
 minimal-ubuntu-trusty:
   image: ubuntu:trusty
@@ -37,5 +41,17 @@ minimal-ubuntu-wily:
 
 minimal-ubuntu-latest:
   image: ubuntu:latest
+  script:
+    - make test-minimal
+
+# Docker openSUSE
+
+minimal-opensuse-latest:
+  image: opensuse:latest
+  script:
+    - make test-minimal
+
+minimal-opensuse-tumbleweed:
+  image: opensuse:tumbleweed
   script:
     - make test-minimal
