@@ -24,3 +24,8 @@ minimal-debian-unstable:
   image: debian:unstble
   script:
     - make test-minimal
+
+minimal-ubuntu-trusty:
+  image: ubuntu:trusty
+  script:
+    - make test-minimal
