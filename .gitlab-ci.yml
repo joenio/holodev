@@ -29,3 +29,13 @@ minimal-ubuntu-trusty:
   image: ubuntu:trusty
   script:
     - make test-minimal
+
+minimal-ubuntu-wily:
+  image: ubuntu:wily
+  script:
+    - make test-minimal
+
+minimal-ubuntu-latest:
+  image: ubuntu:latest
+  script:
+    - make test-minimal
