@@ -216,10 +216,10 @@ add_user_to_sudo() {
 setup_libvirt_Debian() {
   NET_AUTOSTART=$(sudo virsh net-info default | grep Autostart: | awk '{print $2}')
   NET_ACTIVE=$(sudo virsh net-info default | grep Active: | awk '{print $2}')
-  if [ $NET_AUTOSTART != 'yes' ]; then
+  if [ -n $NET_AUTOSTART ] && [ $NET_AUTOSTART != 'yes' ]; then
     sudo virsh net-autostart default
   fi
-  if [ $NET_ACTIVE != 'yes' ]; then
+  if [ -n $NET_ACTIVE ] && [ $NET_ACTIVE != 'yes' ]; then
     sudo virsh net-start default
   fi
 }
