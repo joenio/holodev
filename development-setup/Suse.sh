@@ -11,6 +11,7 @@ zypper --non-interactive in \
         sudo \
         which \
         make \
+        ncurses-utils \
 
 echo 'PATH=$PATH:/usr/share/shunit2/src' >> /etc/profile.local
 
