@@ -13,6 +13,7 @@ zypper --non-interactive in \
         make \
 
 echo 'PATH=$PATH:/usr/share/shunit2/src' >> /etc/profile.local
+export PATH=$PATH:/usr/share/shunit2/src
 
 which aa-status > /dev/null; if [ $? -ne 0 ]; then
   echo
