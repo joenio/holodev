@@ -72,7 +72,7 @@ for i in "$@"; do
       LIST_ALL_CONTAINERS=true
       shift
       ;;
-    jessie|sid|squeeze|stable|testing|wheezy)
+    jessie|sid|squeeze|stable|stretch|testing|wheezy)
       ;;
     *)
       BRANCH_EXISTS=$(git rev-parse --abbrev-ref --all | grep "^$i$")
