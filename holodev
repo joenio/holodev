@@ -38,14 +38,9 @@ fi
 
 for i in "$@"; do
   case $i in
-    attach|create|destroy|info|list|restart|start|setup|stop)
+    attach|create|destroy|info|list|restart|run|start|setup|stop)
       COMMAND=$i
       shift
-      ;;
-    run)
-      COMMAND=$i
-      shift
-      break
       ;;
     --no-branch)
       NO_GIT_BRANCH=true
@@ -75,10 +70,12 @@ for i in "$@"; do
     jessie|sid|squeeze|stable|stretch|testing|wheezy)
       ;;
     *)
-      BRANCH_EXISTS=$(git rev-parse --abbrev-ref --all | grep "^$i$")
-      if [ -z $BRANCH_EXISTS ]; then
-        echo "W: unknown option '$i'"
-        INVALID_OPTIONS=true
+      if [ -z $COMMAND ] || [ $COMMAND != 'run' ]; then
+        BRANCH_EXISTS=$(git rev-parse --abbrev-ref --all | grep "^$i$")
+        if [ -z $BRANCH_EXISTS ]; then
+          echo "W: unknown option '$i'"
+          INVALID_OPTIONS=true
+        fi
       fi
       ;;
   esac

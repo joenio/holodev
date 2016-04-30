@@ -73,4 +73,20 @@ test_list_command_with_dummy_option() {
   assertEquals "'list' command didn't run 'lxc-ls'" 1 $COUNT
 }
 
+test_run_command_with_dummy_option_under_git_repository() {
+  cd tests; tar -xf repository.tar; cd repository
+  HOLODEV_OUTPUT=$(../../holodev run --dummy 'ls' 2>&1)
+  COUNT=$(echo $HOLODEV_OUTPUT | grep -c "sudo lxc-attach -n repository-master -- su - $USER -c ls")
+  assertEquals "'run' command didn't run 'ls' under container" 1 $COUNT
+  cd ..; rm -rf repository; cd ..
+}
+
+test_run_command_with_dummy_option_and_nobranch_under_git_repository() {
+  cd tests; tar -xf repository.tar; cd repository
+  HOLODEV_OUTPUT=$(../../holodev run --dummy --no-branch 'ls' 2>&1)
+  COUNT=$(echo $HOLODEV_OUTPUT | grep -c "sudo lxc-attach -n repository -- su - $USER -c ls")
+  assertEquals "'run' command didn't run 'ls' under container" 1 $COUNT
+  cd ..; rm -rf repository; cd ..
+}
+
 . shunit2
