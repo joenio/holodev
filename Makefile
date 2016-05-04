@@ -12,5 +12,5 @@ test-vagrant:
 		echo "";\
 		echo "+++ running holodev tests under $$machine +++";\
 		echo "";\
-		vagrant ssh $$machine -- 'cd /vagrant && make test';\
+		vagrant ssh -c 'cd /vagrant && make test' $$machine;\
 	done

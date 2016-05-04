@@ -39,13 +39,13 @@ test_container_name_under_directory() {
 
 test_create_command_with_dummy_option() {
   HOLODEV_OUTPUT=$(./holodev create --dummy 2>&1)
-  COUNT=$(echo $HOLODEV_OUTPUT | grep -c 'sudo lxc-create -n ')
+  COUNT=$(echo $HOLODEV_OUTPUT | grep -c 'sudo .*lxc-create -n ')
   assertEquals "'create' command didn't run 'lxc-create'" 1 $COUNT
 }
 
 test_attach_command_with_dummy_option() {
   HOLODEV_OUTPUT=$(./holodev attach --dummy 2>&1)
-  COUNT=$(echo $HOLODEV_OUTPUT | grep -c 'sudo lxc-attach -n ')
+  COUNT=$(echo $HOLODEV_OUTPUT | grep -c 'sudo lxc-attach \(--clear-env \)\?-n ')
   assertEquals "'attach' command didn't run 'lxc-attach'" 1 $COUNT
 }
 
@@ -76,7 +76,7 @@ test_list_command_with_dummy_option() {
 test_run_command_with_dummy_option_under_git_repository() {
   cd tests; tar -xf repository.tar; cd repository
   HOLODEV_OUTPUT=$(../../holodev run --dummy 'ls' 2>&1)
-  COUNT=$(echo $HOLODEV_OUTPUT | grep -c "sudo lxc-attach -n repository-master -- su - $USER -c ls")
+  COUNT=$(echo $HOLODEV_OUTPUT | grep -c "sudo lxc-attach \(--clear-env \)\?-n repository-master -- su - $USER -c ls")
   assertEquals "'run' command didn't run 'ls' under container" 1 $COUNT
   cd ..; rm -rf repository; cd ..
 }
@@ -84,7 +84,7 @@ test_run_command_with_dummy_option_under_git_repository() {
 test_run_command_with_dummy_option_and_nobranch_under_git_repository() {
   cd tests; tar -xf repository.tar; cd repository
   HOLODEV_OUTPUT=$(../../holodev run --dummy --no-branch 'ls' 2>&1)
-  COUNT=$(echo $HOLODEV_OUTPUT | grep -c "sudo lxc-attach -n repository -- su - $USER -c ls")
+  COUNT=$(echo $HOLODEV_OUTPUT | grep -c "sudo lxc-attach \(--clear-env \)\?-n repository -- su - $USER -c ls")
   assertEquals "'run' command didn't run 'ls' under container" 1 $COUNT
   cd ..; rm -rf repository; cd ..
 }

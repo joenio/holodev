@@ -13,6 +13,7 @@ LIST_ALL_CONTAINERS=false
 LXC_VERSION=$(lxc-ls --version)
 DUMMY_MODE=false
 LANG=C
+LC_CTYPE=$LANG
 
 # Detect OS
 if [ -f /etc/lsb-release ]; then
@@ -112,19 +113,13 @@ compare_version() {
   [ $VER1 -ge $VER2 ]
 }
 
-run_sh() {
-  if ! $DUMMY_MODE; then
-    sudo sh -c "$@"
-  fi
-}
-
 run() {
   CYAN=$(tput setaf 6)
   ENDCOLOR=$(tput sgr0)
   if $DUMMY_MODE; then
     echo "${CYAN}[HOLODEV] sudo $@${ENDCOLOR}"
   else
-    sudo $@
+    sudo "$@"
   fi
 }
 
@@ -170,25 +165,25 @@ error() {
 
 create_default_configuration_file() {
   info "creating default configuration file"
-  run_sh "sed -i 's/lxc.network./#lxc.network./' /var/lib/lxc/$CONTAINER_NAME/config"
-  run_sh "echo >> /var/lib/lxc/$CONTAINER_NAME/config"
-  run_sh "echo \# holodev configurations >> /var/lib/lxc/$CONTAINER_NAME/config"
-  run_sh "echo lxc.network.type = veth >> /var/lib/lxc/$CONTAINER_NAME/config"
-  run_sh "echo lxc.network.link = virbr0 >> /var/lib/lxc/$CONTAINER_NAME/config"
-  run_sh "echo lxc.mount = /var/lib/lxc/$CONTAINER_NAME/fstab >> /var/lib/lxc/$CONTAINER_NAME/config"
+  run sh -c "sed -i 's/lxc.network./#lxc.network./' /var/lib/lxc/$CONTAINER_NAME/config"
+  run sh -c "echo >> /var/lib/lxc/$CONTAINER_NAME/config"
+  run sh -c "echo \# holodev configurations >> /var/lib/lxc/$CONTAINER_NAME/config"
+  run sh -c "echo lxc.network.type = veth >> /var/lib/lxc/$CONTAINER_NAME/config"
+  run sh -c "echo lxc.network.link = virbr0 >> /var/lib/lxc/$CONTAINER_NAME/config"
+  run sh -c "echo lxc.mount = /var/lib/lxc/$CONTAINER_NAME/fstab >> /var/lib/lxc/$CONTAINER_NAME/config"
   if is_apparmor_enabled; then
-    run_sh "echo lxc.aa_allow_incomplete = 1 >> /var/lib/lxc/$CONTAINER_NAME/config"
+    run sh -c "echo lxc.aa_allow_incomplete = 1 >> /var/lib/lxc/$CONTAINER_NAME/config"
   fi
   if [ -f /etc/apparmor.d/disabled/usr.bin.lxc-start ]; then
-    run_sh "echo lxc.aa_profile = unconfined >> /var/lib/lxc/$CONTAINER_NAME/config"
+    run sh -c "echo lxc.aa_profile = unconfined >> /var/lib/lxc/$CONTAINER_NAME/config"
   fi
 }
 
 lxc_attach() {
   if [ $OS = 'Arch' ]; then
-    run lxc-attach --clear-env -n $CONTAINER_NAME -- $@
+    run lxc-attach --clear-env -n $CONTAINER_NAME -- "$@"
   else
-    run lxc-attach -n $CONTAINER_NAME -- $@
+    run lxc-attach -n $CONTAINER_NAME -- "$@"
   fi
 }
 
@@ -205,9 +200,15 @@ add_user_to_sudo() {
   if ! sudo test -e /var/lib/lxc/$CONTAINER_NAME/rootfs/etc/sudoers.d/sudo-group-nopasswd; then
     lxc_attach apt-get update
     lxc_attach apt-get -y install debian-archive-keyring sudo
-    run_sh "echo '%sudo ALL=(ALL) NOPASSWD:ALL' > /var/lib/lxc/$CONTAINER_NAME/rootfs/etc/sudoers.d/sudo-group-nopasswd"
+    run sh -c "echo '%sudo ALL=(ALL) NOPASSWD:ALL' > /var/lib/lxc/$CONTAINER_NAME/rootfs/etc/sudoers.d/sudo-group-nopasswd"
     lxc_attach adduser $HOST_USER sudo
   fi
+}
+
+ensure_UTF8_under_container() {
+  info "enabling UTF-8 under container"
+  lxc_attach locale-gen "$LANG.UTF-8"
+  lxc_attach update-locale LANG=$LANG.UTF-8 LC_ALL=$LANG.UTF-8
 }
 
 setup_libvirt_Debian() {
@@ -277,21 +278,22 @@ do_create() {
 
   # create container, deboostrap debian
   if [ ! -d /var/lib/lxc/$CONTAINER_NAME ]; then
-    run lxc-create -n $CONTAINER_NAME -t debian -- -r $DEBIAN_RELEASE
+    run LC_ALL=$LANG lxc-create -n $CONTAINER_NAME -t debian -- -r $DEBIAN_RELEASE
   fi
 
   # mount current curectory (suppose is the source-code of project i'm working on) into container
-  run_sh "echo `pwd` /var/lib/lxc/$CONTAINER_NAME/rootfs/$MOUNT_POINT none bind 0 0 > /var/lib/lxc/$CONTAINER_NAME/fstab"
+  run sh -c "echo `pwd` /var/lib/lxc/$CONTAINER_NAME/rootfs/$MOUNT_POINT none bind 0 0 > /var/lib/lxc/$CONTAINER_NAME/fstab"
 
   # create directory into container to mount project sources I'm working on
   if ! sudo test -d /var/lib/lxc/$CONTAINER_NAME/rootfs/$MOUNT_POINT; then
-    run_sh "mkdir /var/lib/lxc/$CONTAINER_NAME/rootfs/$MOUNT_POINT"
+    run sh -c "mkdir /var/lib/lxc/$CONTAINER_NAME/rootfs/$MOUNT_POINT"
   fi
 
   create_default_configuration_file
   start_if_stopped
   create_user_into_container
   add_user_to_sudo
+  ensure_UTF8_under_container
 }
 
 do_info() {
@@ -300,7 +302,7 @@ do_info() {
 }
 
 do_run() {
-  COMMAND=$@
+  COMMAND="$@"
   highlight "running '$COMMAND' under '$CONTAINER_NAME'"
   start_if_stopped
   lxc_attach su - $HOST_USER -c "$COMMAND"
@@ -360,5 +362,5 @@ do_list() {
   fi
 }
 
-do_$COMMAND $@
+do_$COMMAND "$@"
 exit 0
