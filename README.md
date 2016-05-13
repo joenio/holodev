@@ -1,3 +1,15 @@
+instalar os seguintes pacotes dentro do container
+
+gnome-themes-standard
+dbus
+dbus-x11
+libcanberra-gtk-module
+gtk-sharp3
+xauth
+x11-apps
+
+reiniciar o container e abrir uma sessão ssh com a opcao -X
+
 [![Build Status](https://travis-ci.org/lappis-tools/holodev.svg?branch=master)](https://travis-ci.org/lappis-tools/holodev)
 [![build status](https://gitlab.com/lappis/holodev/badges/master/build.svg)](https://gitlab.com/lappis/holodev/commits/master)
 
