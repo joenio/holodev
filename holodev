@@ -39,7 +39,7 @@ fi
 
 for i in "$@"; do
   case $i in
-    attach|create|destroy|info|list|restart|run|start|setup|stop)
+    attach|create|destroy|info|list|restart|run|start|setup|stop|ssh)
       COMMAND=$i
       shift
       ;;
@@ -91,7 +91,7 @@ if [ -z $COMMAND ]; then
   echo "" >&2
   echo "Usage: `basename $0` <command> [options]" >&2
   echo "" >&2
-  echo "* command = {attach|create|destroy|info|list|restart|run|start|setup|stop}" >&2
+  echo "* command = {attach|create|destroy|info|list|restart|run|start|setup|stop|ssh}" >&2
   echo "* options = --no-branch" >&2
   echo "            --branch <branch-name>" >&2
   echo "            --dummy" >&2
@@ -249,6 +249,13 @@ do_attach() {
   highlight "opening console to '$CONTAINER_NAME'"
   start_if_stopped
   lxc_attach su - $HOST_USER
+}
+
+do_ssh() {
+  highlight "opening ssh -X session to '$CONTAINER_NAME'"
+  start_if_stopped
+  CONTAINER_IP=$(do_info | grep 'IP:' | awk '{print $2}')
+  ssh -X $CONTAINER_IP
 }
 
 do_setup() {
