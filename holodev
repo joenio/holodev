@@ -1,5 +1,22 @@
 #!/bin/sh
 
+: <<=cut
+
+=head1 NAME
+
+   holodev - tool that makes it easier the creation Linux containers
+
+=head1 SYNOPSIS
+
+   $ holodev create
+
+=head1 DESCRIPTION
+
+A tool to facilitate the creation of Linux Containers for developing Debian
+systems
+
+=cut
+
 HOST_USER=$USER
 HOST_UID=$(getent passwd | grep "^$USER:" | cut -d":" -f3)
 CURRENT_DIRECTORY=$(basename `pwd`)
@@ -240,10 +257,30 @@ setup_libvirt_Arch() {
   setup_libvirt_Debian
 }
 
+: <<=cut
+
+=head1 COMMANDS
+
+=over
+
+=item restart
+
+restart the container
+
+=cut
+
 do_restart() {
   do_stop
   do_start
 }
+
+: <<=cut
+
+=item attach
+
+connect to the container console
+
+=cut
 
 do_attach() {
   highlight "opening console to '$CONTAINER_NAME'"
@@ -353,6 +390,14 @@ do_destroy() {
   run lxc-destroy -n $CONTAINER_NAME -f
 }
 
+: <<=cut
+
+=item list
+
+list all containers
+
+=cut
+
 do_list() {
   highlight "listing containers"
   if $LIST_ALL_CONTAINERS; then
@@ -364,3 +409,23 @@ do_list() {
 
 do_$COMMAND "$@"
 exit 0
+
+: <<=cut
+
+=back
+
+=head1 SEE ALSO
+
+L<perlpod|pod::perlpod>, L<perlpodspec|pod::perlpodspec>
+
+=head1 LICENSE
+
+Such a wonderful and unusual idea is certainly protected by many patents...
+
+Or maybe not...
+
+=head1 AUTHOR
+
+B<I> had this great idea...
+
+=cut
