@@ -211,6 +211,17 @@ ensure_UTF8_under_container() {
   lxc_attach update-locale LANG=$LANG.UTF-8 LC_ALL=$LANG.UTF-8
 }
 
+setup_proxy_into_container() {
+  VIRBR0_IP=$(/sbin/ifconfig virbr0 | grep inet | awk '{print $2}')
+  info "configuring container to use http_proxy=http://$VIRBR0_IP:8123"
+  if ! sudo test -e /var/lib/lxc/$CONTAINER_NAME/rootfs/etc/profile.d/http_proxy.sh; then
+    run sh -c "echo 'export http_proxy=http://$VIRBR0_IP:8123' > /var/lib/lxc/$CONTAINER_NAME/rootfs/etc/profile.d/http_proxy.sh"
+  fi
+  if ! sudo test -e /var/lib/lxc/$CONTAINER_NAME/rootfs/etc/sudoers.d/http-proxy-environment; then
+    run sh -c "echo 'Defaults env_keep = \"http_proxy\"' > /var/lib/lxc/$CONTAINER_NAME/rootfs/etc/sudoers.d/http-proxy-environment"
+  fi
+}
+
 setup_libvirt_Debian() {
   NET_AUTOSTART=$(sudo virsh net-info default | grep Autostart: | awk '{print $2}')
   NET_ACTIVE=$(sudo virsh net-info default | grep Active: | awk '{print $2}')
@@ -278,7 +289,7 @@ do_create() {
 
   # create container, deboostrap debian
   if [ ! -d /var/lib/lxc/$CONTAINER_NAME ]; then
-    run LC_ALL=$LANG lxc-create -n $CONTAINER_NAME -t debian -- -r $DEBIAN_RELEASE
+    run LC_ALL=$LANG http_proxy=http://localhost:8123 lxc-create -n $CONTAINER_NAME -t debian -- -r $DEBIAN_RELEASE
   fi
 
   # mount current curectory (suppose is the source-code of project i'm working on) into container
@@ -293,7 +304,9 @@ do_create() {
   start_if_stopped
   create_user_into_container
   add_user_to_sudo
+  setup_proxy_into_container
   ensure_UTF8_under_container
+  do_stop
 }
 
 do_info() {

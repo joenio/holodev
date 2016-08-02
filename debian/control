@@ -14,7 +14,7 @@ Vcs-Git: https://github.com/lappis-tools/holodev.git
 Package: holodev
 Architecture: all
 Depends: libvirt-bin | libvirt-clients, libvirt-bin | libvirt-daemon-system,
-         bridge-utils, debootstrap, lxc, sudo, git, bash-completion,
+         bridge-utils, debootstrap, lxc, sudo, git, bash-completion, polipo,
          ${misc:Depends}
 Suggests: cgmanager
 Conflicts: lxcfs, libpam-cgfs
