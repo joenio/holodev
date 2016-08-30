@@ -7,7 +7,7 @@ _holodev()
     holodev_command="${COMP_WORDS[1]}"
     commands="attach create destroy info list restart run start setup stop --version"
 
-    opts_create()  { echo "--branch --no-branch --release --dummy"; }
+    opts_create()  { echo "--branch --no-branch --release --dummy --arch"; }
     opts_attach()  { echo "--branch --no-branch --dummy"; }
     opts_destroy() { opts_attach; }
     opts_info()    { opts_attach; }
@@ -26,7 +26,11 @@ _holodev()
             return 0
             ;;
           --release)
-            COMPREPLY=( $(compgen -W "squeeze wheezy jessie stable testing sid" -- ${cur}) )
+            COMPREPLY=( $(compgen -W "squeeze wheezy jessie stable testing stretch sid" -- ${cur}) )
+            return 0
+            ;;
+          --arch)
+            COMPREPLY=( $(compgen -W "armhf armel mipsn32 mipsn32el mipsn32r6 mipsn32r6el mips64 mips64el mips64r6 mips64r6el powerpcspe x32 i386 ia64 alpha amd64 armeb arm arm64 avr32 hppa m32r m68k mips mipsel mipsr6 mipsr6el nios2 or1k powerpc powerpcel ppc64 ppc64el s390 s390x sh3 sh3eb sh4 sh4eb sparc sparc64 tilegx" -- ${cur}) )
             return 0
             ;;
         esac

@@ -14,6 +14,7 @@ LXC_VERSION=$(lxc-ls --version)
 DUMMY_MODE=false
 LANG=C
 LC_CTYPE=$LANG
+ARCH=
 
 # Detect OS
 if [ -f /etc/lsb-release ]; then
@@ -37,6 +38,7 @@ if is_under_git_control; then
   GIT_BRANCH=$(git describe --contains --all HEAD)
 fi
 
+previous=
 for i in "$@"; do
   case $i in
     attach|create|destroy|info|list|restart|run|start|setup|stop)
@@ -68,10 +70,18 @@ for i in "$@"; do
       LIST_ALL_CONTAINERS=true
       shift
       ;;
-    jessie|sid|squeeze|stable|stretch|testing|wheezy)
+    --arch)
+      ARCH=$2
+      shift 2
       ;;
     *)
-      if [ -z $COMMAND ] || [ $COMMAND != 'run' ]; then
+      if [ -n $previous ] && [ $previous = '--arch' ]; then
+        # we don't need validation for --arch param
+        true
+      elif [ -n $previous ] && [ $previous = '--release' ]; then
+        # we don't need validation for --release param
+        true
+      elif [ -z $COMMAND ] || [ $COMMAND != 'run' ]; then
         BRANCH_EXISTS=$(git rev-parse --abbrev-ref --all | grep "^$i$")
         if [ -z $BRANCH_EXISTS ]; then
           echo "W: unknown option '$i'"
@@ -80,6 +90,7 @@ for i in "$@"; do
       fi
       ;;
   esac
+  previous=$i
 done
 
 if $INVALID_OPTIONS; then
@@ -278,7 +289,11 @@ do_create() {
 
   # create container, deboostrap debian
   if [ ! -d /var/lib/lxc/$CONTAINER_NAME ]; then
-    run LC_ALL=$LANG lxc-create -n $CONTAINER_NAME -t debian -- -r $DEBIAN_RELEASE
+    if [ ! -z $ARCH ]; then
+      run LC_ALL=$LANG lxc-create -n $CONTAINER_NAME -t debian -- -r $DEBIAN_RELEASE -a $ARCH
+    else
+      run LC_ALL=$LANG lxc-create -n $CONTAINER_NAME -t debian -- -r $DEBIAN_RELEASE
+    fi
   fi
 
   # mount current curectory (suppose is the source-code of project i'm working on) into container
