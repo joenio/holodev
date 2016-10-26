@@ -36,7 +36,7 @@ is_under_git_control() {
 }
 
 if is_under_git_control; then
-  GIT_BRANCH=$(git describe --contains --all HEAD)
+  GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 fi
 
 previous=
@@ -76,18 +76,17 @@ for i in "$@"; do
       shift 2
       ;;
     *)
-      if [ -n $previous ] && [ $previous = '--arch' ]; then
+      if [ -n $previous ] && [ "$previous" = '--arch' ]; then
         # we don't need validation for --arch param
         true
-      elif [ -n $previous ] && [ $previous = '--release' ]; then
+      elif [ -n $previous ] && [ "$previous" = '--release' ]; then
         # we don't need validation for --release param
         true
-      elif [ -z $COMMAND ] || [ $COMMAND != 'run' ]; then
-        BRANCH_EXISTS=$(git rev-parse --abbrev-ref --all | grep "^$i$")
-        if [ -z $BRANCH_EXISTS ]; then
-          echo "W: unknown option '$i'"
-          INVALID_OPTIONS=true
-        fi
+      elif [ -n $previous ] && [ "$previous" = '--branch' ]; then
+        # we don't need validation for --branch param
+        true
+      elif [ -z $COMMAND ] || [ "$COMMAND" != 'run' ]; then
+        INVALID_OPTIONS=true
       fi
       ;;
   esac
@@ -222,6 +221,10 @@ copy_dot_files_into_container() {
   if [ -d ~/.gnupg ]; then
     run sh -c "cp -r ~$HOST_USER/.gnupg /var/lib/lxc/$CONTAINER_NAME/rootfs/$HOME_DIRECTORY/"
     run sh -c "chown -R $HOST_USER:nogroup /var/lib/lxc/$CONTAINER_NAME/rootfs/$HOME_DIRECTORY/.gnupg"
+  fi
+  if [ -f ~/.gitignore ]; then
+    run sh -c "cp ~$HOST_USER/.gitignore /var/lib/lxc/$CONTAINER_NAME/rootfs/$HOME_DIRECTORY/"
+    run sh -c "chown -R $HOST_USER:nogroup /var/lib/lxc/$CONTAINER_NAME/rootfs/$HOME_DIRECTORY/.gitignore"
   fi
 }
 
