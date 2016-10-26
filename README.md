@@ -127,7 +127,7 @@ Use the script `development-setup.sh` (as root or sudo) to install development d
 
 ## Authors
 
-* Joenio Costa <joenio@colivre.coop.br>
+* Joenio Costa <joenio@joenio.me>
 * Carlos Coelho <carlos@pencillabs.com>
 * Lucas Severo <lucassalves65@gmail.com>
 

@@ -13,6 +13,7 @@ LXC_VERSION=$(lxc-ls --version)
 DUMMY_MODE=false
 LANG=C
 LC_CTYPE=$LANG
+BIND_LOCALHOST_PORT=3000
 ARCH=
 HOME_DIRECTORY=HOLODEV
 
@@ -43,6 +44,10 @@ for i in "$@"; do
   case $i in
     attach|create|destroy|info|list|restart|run|start|setup|stop)
       COMMAND=$i
+      shift
+      ;;
+    --bind)
+      BIND_LOCALHOST_PORT=$2
       shift
       ;;
     --no-branch)
@@ -83,6 +88,9 @@ for i in "$@"; do
         true
       elif [ -n $previous ] && [ "$previous" = '--branch' ]; then
         # we don't need validation for --branch param
+        true
+      elif [ -n $previous ] && [ "$previous" = '--bind' ]; then
+        # TODO validate if --bind param is only-number
         true
       elif [ -z "$COMMAND" ] || [ "$COMMAND" != 'run' ]; then
         INVALID_OPTIONS=true
@@ -258,6 +266,42 @@ setup_libvirt_Arch() {
   setup_libvirt_Debian
 }
 
+create_xinetd_config_file() {
+  local FILENAME=/tmp/holodev-$CONTAINER_NAME.xinetd
+  CONTAINER_IP=$(do_info | grep 'IP:' | awk '{print $2}')
+  cat > $FILENAME <<EOF
+    service holodev-$CONTAINER_NAME
+    {
+       socket_type = stream
+       wait        = no
+       user        = root
+       type        = UNLISTED
+       bind        = 127.0.0.1
+       redirect    = $CONTAINER_IP $BIND_LOCALHOST_PORT
+       port        = $BIND_LOCALHOST_PORT
+    }
+EOF
+  echo $FILENAME
+}
+
+xinetd_bind() {
+  info "binding localhost:$BIND_LOCALHOST_PORT"
+  if is_container_stopped; then
+    error "container $CONTAINER_NAME isn't running!"
+  else
+    sudo xinetd -f $(create_xinetd_config_file) -pidfile /run/$CONTAINER_NAME.xinetd.pid
+  fi
+}
+
+xinetd_unbind() {
+  info "un-binding localhost:$BIND_LOCALHOST_PORT"
+  if [ -e /run/$CONTAINER_NAME.xinetd.pid ]; then
+    sudo kill `cat /run/$CONTAINER_NAME.xinetd.pid`
+  else
+    error "xinetd isn't running for this container"
+  fi
+}
+
 do_restart() {
   do_stop
   do_start
@@ -366,15 +410,18 @@ do_start() {
   run lxc-start -n $CONTAINER_NAME -d
   run lxc-wait -n $CONTAINER_NAME -s RUNNING
   up_network
+  xinetd_bind
 }
 
 do_stop() {
   highlight "stopping '$CONTAINER_NAME'"
+  xinetd_unbind
   run lxc-stop -n $CONTAINER_NAME
 }
 
 do_destroy() {
   highlight "destroing '$CONTAINER_NAME'"
+  xinetd_unbind
   run lxc-destroy -n $CONTAINER_NAME -f
 }
 
