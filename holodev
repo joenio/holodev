@@ -3,7 +3,6 @@
 HOST_USER=$USER
 HOST_UID=$(getent passwd | grep "^$USER:" | cut -d":" -f3)
 CURRENT_DIRECTORY=$(basename `pwd`)
-MOUNT_POINT=$(echo $CURRENT_DIRECTORY | tr '[:lower:]' '[:upper:]')
 DEBIAN_RELEASE=jessie
 INVALID_OPTIONS=false
 NO_GIT_BRANCH=false
@@ -85,7 +84,7 @@ for i in "$@"; do
       elif [ -n $previous ] && [ "$previous" = '--branch' ]; then
         # we don't need validation for --branch param
         true
-      elif [ -z $COMMAND ] || [ "$COMMAND" != 'run' ]; then
+      elif [ -z "$COMMAND" ] || [ "$COMMAND" != 'run' ]; then
         INVALID_OPTIONS=true
       fi
       ;;
@@ -93,22 +92,18 @@ for i in "$@"; do
   previous=$i
 done
 
-if $INVALID_OPTIONS; then
-  exit 3
-fi
-
-if [ -z $COMMAND ]; then
-  echo "E: missing command" >&2
+if [ -z $COMMAND ] || $INVALID_OPTIONS; then
+  echo "E: missing command or invalid options" >&2
   echo "" >&2
   echo "Usage: `basename $0` <command> [options]" >&2
   echo "" >&2
-  echo "* command = {attach|create|destroy|info|list|restart|run|start|setup|stop}" >&2
-  echo "* options = --no-branch" >&2
-  echo "            --branch <branch-name>" >&2
-  echo "            --dummy" >&2
-  echo "            --release <debian-codename>" >&2
-  echo "            --version" >&2
-  echo "            --all" >&2
+  echo "* <command> = {attach|create|destroy|info|list|restart|run|start|setup|stop}" >&2
+  echo "* [options] = --no-branch" >&2
+  echo "              --branch <branch-name>" >&2
+  echo "              --dummy" >&2
+  echo "              --release <debian-codename>" >&2
+  echo "              --version" >&2
+  echo "              --all" >&2
   exit 2
 fi
 
@@ -217,14 +212,14 @@ add_user_to_sudo() {
 }
 
 copy_dot_files_into_container() {
-  info "copying dot files (gnupg, ssh, etc) into the container"
+  info "copying dot files (gnupg, ssh, gitconfig, etc) into the container"
   if [ -d ~/.gnupg ]; then
     run sh -c "cp -r ~$HOST_USER/.gnupg /var/lib/lxc/$CONTAINER_NAME/rootfs/$HOME_DIRECTORY/"
     run sh -c "chown -R $HOST_USER:nogroup /var/lib/lxc/$CONTAINER_NAME/rootfs/$HOME_DIRECTORY/.gnupg"
   fi
-  if [ -f ~/.gitignore ]; then
-    run sh -c "cp ~$HOST_USER/.gitignore /var/lib/lxc/$CONTAINER_NAME/rootfs/$HOME_DIRECTORY/"
-    run sh -c "chown -R $HOST_USER:nogroup /var/lib/lxc/$CONTAINER_NAME/rootfs/$HOME_DIRECTORY/.gitignore"
+  if [ -f ~/.gitconfig ]; then
+    run sh -c "cp ~$HOST_USER/.gitconfig /var/lib/lxc/$CONTAINER_NAME/rootfs/$HOME_DIRECTORY/"
+    run sh -c "chown -R $HOST_USER:nogroup /var/lib/lxc/$CONTAINER_NAME/rootfs/$HOME_DIRECTORY/.gitconfig"
   fi
 }
 
@@ -309,12 +304,12 @@ do_create() {
   fi
 
   # mount current curectory (suppose is the source-code of project i'm working on) into container
-  run sh -c "echo `pwd` /var/lib/lxc/$CONTAINER_NAME/rootfs/$HOME_DIRECTORY/$MOUNT_POINT none bind 0 0 > /var/lib/lxc/$CONTAINER_NAME/fstab"
+  run sh -c "echo `pwd` /var/lib/lxc/$CONTAINER_NAME/rootfs/$HOME_DIRECTORY/$CURRENT_DIRECTORY none bind 0 0 > /var/lib/lxc/$CONTAINER_NAME/fstab"
 
   # create directory into container to mount project sources I'm working on
-  if ! sudo test -d /var/lib/lxc/$CONTAINER_NAME/rootfs/$HOME_DIRECTORY/$MOUNT_POINT; then
-    run sh -c "mkdir -p /var/lib/lxc/$CONTAINER_NAME/rootfs/$HOME_DIRECTORY/$MOUNT_POINT"
-    run sh -c "echo 'cd $MOUNT_POINT' > /var/lib/lxc/$CONTAINER_NAME/rootfs/$HOME_DIRECTORY/.bash_profile"
+  if ! sudo test -d /var/lib/lxc/$CONTAINER_NAME/rootfs/$HOME_DIRECTORY/$CURRENT_DIRECTORY; then
+    run sh -c "mkdir -p /var/lib/lxc/$CONTAINER_NAME/rootfs/$HOME_DIRECTORY/$CURRENT_DIRECTORY"
+    run sh -c "echo 'cd $CURRENT_DIRECTORY' > /var/lib/lxc/$CONTAINER_NAME/rootfs/$HOME_DIRECTORY/.bash_profile"
     run sh -c "chown -R $HOST_USER:nogroup /var/lib/lxc/$CONTAINER_NAME/rootfs/$HOME_DIRECTORY/.bash_profile"
   fi
 
