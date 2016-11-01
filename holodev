@@ -246,6 +246,7 @@ setup_libvirt_Debian() {
   if [ -n $NET_ACTIVE ] && [ "$NET_ACTIVE" != 'yes' ]; then
     sudo virsh net-start default
   fi
+  sudo systemctl enable libvirt-guests
 }
 
 setup_libvirt_Ubuntu() {
