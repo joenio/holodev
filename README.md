@@ -82,7 +82,7 @@ Then add:
     SigLevel = Never
     Server = http://repo.archlinux.fr/$arch
 
-To install `yaourt` follow this link instructions [desse link](https://archlinux.fr/yaourt-en)
+To install `yaourt` follow this [link](https://archlinux.fr/yaourt-en) instructions
 
 Finally, install holodev:
 
