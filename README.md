@@ -103,7 +103,7 @@ For example, in the `noosfero` directory, in the branch `master` it will create 
 
     ~/src/noosfero$ holodev create
 
-The container `noosfero-master` will be created with Debian Wheezy (default). If you wish to inform another version of Debian just use the `--release`:
+The container `noosfero-master` will be created with Debian Jessie (default). If you wish to inform another version of Debian just use the `--release`:
 
     ~/src/noosfero$ holodev create --release jessie
 
