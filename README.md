@@ -24,6 +24,7 @@ Supported GNU/Linux distributions:
   * Utopic (not tested)
   * Vivid
   * Wily
+  * Xenial
 * Archlinux
 * openSUSE
 
