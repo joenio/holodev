@@ -131,6 +131,12 @@ Use the script `development-setup.sh` (as root) to install development dependenc
     vagrant up
     make test-vagrant
 
+### Building Debian package
+
+To avoid running tests when building package run:
+
+    DEB_BUILD_OPTIONS=nocheck gbp buildpackage
+
 ## Authors
 
 * Joenio Costa <joenio@joenio.me>
