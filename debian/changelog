@@ -1,3 +1,12 @@
+holodev (0.9) UNRELEASED; urgency=medium
+
+  * new option `--arch` to set container architecture
+  * new option `--bind` for mapping port between host and container
+  * added .gitlab-ci.yml
+  * default release for new containers is Jessie
+
+ -- Joenio Costa <joenio@joenio.me>  Wed, 15 Mar 2017 01:10:27 -0300
+
 holodev (0.8) unstable; urgency=medium
 
   * fix creation of the config file

@@ -123,7 +123,12 @@ To run these tests you need to install `vagrant`,` virtualbox` and run the comma
 
     dpkg-reconfigure virtualbox-dkms
 
-Use the script `development-setup.sh` (as root or sudo) to install development dependencies on your system.
+Use the script `development-setup.sh` (as root) to install development dependencies on your system.
+
+### Running tests
+
+    vagrant up
+    make test-vagrant
 
 ## Authors
 
