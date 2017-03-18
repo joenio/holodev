@@ -27,6 +27,8 @@ elif [ -f /etc/arch-release ]; then
   OS=Arch
 elif [ -f /etc/SuSE-release ]; then
   OS=Suse
+elif [ -f /etc/fedora-release ]; then
+  OS=Fedora
 else
   OS=$(uname -s)
 fi
@@ -267,6 +269,14 @@ setup_libvirt_Arch() {
   setup_libvirt_Debian
 }
 
+setup_libvirt_Linux() {
+  setup_libvirt_Debian
+}
+
+setup_libvirt_Fedora() {
+  setup_libvirt_Debian
+}
+
 create_xinetd_config_file() {
   local FILENAME=/tmp/holodev-$CONTAINER_NAME.xinetd
   CONTAINER_IP=$(do_info | grep 'IP:' | awk '{print $2}')
@@ -395,9 +405,15 @@ up_network() {
     if [ $SYSTEMD_IS_ACTIVE ]; then
       info "waiting the system be operational"
       IS_SYSTEM_RUNNING=$(lxc_attach systemctl is-system-running)
-      while ! echo $IS_SYSTEM_RUNNING | grep -q -e 'degraded' -e 'running'; do
-        sleep 1s
-        IS_SYSTEM_RUNNING=$(lxc_attach systemctl is-system-running)
+      RETRY=5
+      while [ $RETRY -gt 0 ]; do
+        if ! echo $IS_SYSTEM_RUNNING | grep -q -e 'degraded' -e 'running'; then
+          sleep 2s
+          IS_SYSTEM_RUNNING=$(lxc_attach systemctl is-system-running)
+          RETRY=$(echo "$RETRY - 1" | bc)
+        else
+          RETRY=0
+        fi
       done
       lxc_attach systemctl enable systemd-networkd.service
       lxc_attach systemctl start systemd-networkd.service

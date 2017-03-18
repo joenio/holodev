@@ -7,6 +7,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     xenial:    'ubuntu/xenial32',
     archlinux: 'terrywang/archlinux',
     opensuse:  'opensuse/openSUSE-42.1-x86_64',
+    fedora:    'fedora/25-cloud-base',
   }.each do |release, box|
     config.vm.define release do |machine|
       machine.vm.box = box
