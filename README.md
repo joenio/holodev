@@ -27,6 +27,9 @@ Supported GNU/Linux distributions:
   * Xenial
 * Archlinux
 * openSUSE
+* Fedora
+  * Fedora 24
+  * Fedora 25
 
 ## sudo
 
@@ -95,6 +98,10 @@ or:
     yaourt -S holodev-git
 
 if you want the bleeding edge version.
+
+## Installing in Fedora
+
+(pending)
 
 ## Using
 
