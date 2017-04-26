@@ -305,11 +305,9 @@ xinetd_bind() {
 }
 
 xinetd_unbind() {
-  info "un-binding localhost:$BIND_LOCALHOST_PORT"
   if [ -e /run/$CONTAINER_NAME.xinetd.pid ]; then
+    info "un-binding localhost:$BIND_LOCALHOST_PORT"
     sudo kill `cat /run/$CONTAINER_NAME.xinetd.pid`
-  else
-    error "xinetd isn't running for this container"
   fi
 }
 
