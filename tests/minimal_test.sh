@@ -13,7 +13,7 @@ test_code_returned_by_holodev_without_no_arguments() {
 
 test_code_returned_by_invalid_arguments() {
   ./holodev invalid-crazy-argument >> $LOGFILE 2>&1
-  assertEquals "shouldn't return '3'" 3 $?
+  assertEquals "shouldn't return '2'" 2 $?
 }
 
 test_code_returned_by_valid_arguments() {
@@ -87,6 +87,12 @@ test_run_command_with_dummy_option_and_nobranch_under_git_repository() {
   COUNT=$(echo $HOLODEV_OUTPUT | grep -c "sudo lxc-attach \(--clear-env \)\?-n repository -- su - $USER -c ls")
   assertEquals "'run' command didn't run 'ls' under container" 1 $COUNT
   cd ..; rm -rf repository; cd ..
+}
+
+test_creating_dummy_i386_container() {
+  HOLODEV_OUTPUT=$(./holodev create --dummy --arch i386 2>&1)
+  COUNT=$(echo $HOLODEV_OUTPUT | grep -c 'sudo .*lxc-create -n .* -a i386')
+  assertEquals "'create' command didn't pass '-a i386' option to 'lxc-create'" 1 $COUNT
 }
 
 . shunit2

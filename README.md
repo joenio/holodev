@@ -24,8 +24,12 @@ Supported GNU/Linux distributions:
   * Utopic (not tested)
   * Vivid
   * Wily
+  * Xenial
 * Archlinux
 * openSUSE
+* Fedora
+  * Fedora 24
+  * Fedora 25
 
 ## sudo
 
@@ -95,6 +99,10 @@ or:
 
 if you want the bleeding edge version.
 
+## Installing in Fedora
+
+(pending)
+
 ## Using
 
 The `holodev` script creates Linux Containers using the current directory plus the `git branch` to compose the container name, it covers the scenario where, for each project (directory), there is a Linux Container, so that it is not necessary to install development dependecies to your system.
@@ -103,7 +111,7 @@ For example, in the `noosfero` directory, in the branch `master` it will create 
 
     ~/src/noosfero$ holodev create
 
-The container `noosfero-master` will be created with Debian Wheezy (default). If you wish to inform another version of Debian just use the `--release`:
+The container `noosfero-master` will be created with Debian Jessie (default). If you wish to inform another version of Debian just use the `--release`:
 
     ~/src/noosfero$ holodev create --release jessie
 
@@ -123,11 +131,22 @@ To run these tests you need to install `vagrant`,` virtualbox` and run the comma
 
     dpkg-reconfigure virtualbox-dkms
 
-Use the script `development-setup.sh` (as root or sudo) to install development dependencies on your system.
+Use the script `development-setup.sh` (as root) to install development dependencies on your system.
+
+### Running tests
+
+    vagrant up
+    make test-vagrant
+
+### Building Debian package
+
+To avoid running tests when building package run:
+
+    DEB_BUILD_OPTIONS=nocheck gbp buildpackage
 
 ## Authors
 
-* Joenio Costa <joenio@colivre.coop.br>
+* Joenio Costa <joenio@joenio.me>
 * Carlos Coelho <carlos@pencillabs.com>
 * Lucas Severo <lucassalves65@gmail.com>
 

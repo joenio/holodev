@@ -1,5 +1,5 @@
 yaourt -Syy
-yaourt -S --force --noconfirm \
+yes | yaourt -S --force --noconfirm \
         bash-completion \
         bridge-utils \
         cgmanager \

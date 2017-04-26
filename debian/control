@@ -1,20 +1,20 @@
 Source: holodev
 Section: devel
 Priority: optional
-Maintainer: Joenio Costa <joenio@colivre.coop.br>
+Maintainer: Joenio Costa <joenio@joenio.me>
 Build-Depends-Indep: debhelper (>= 8), shunit2
 Build-Depends: libvirt-bin | libvirt-clients, libvirt-bin | libvirt-daemon-system,
-               bridge-utils, debootstrap, lxc, dnsmasq, ebtables, sudo, git,
+               bridge-utils, debootstrap, lxc, dnsmasq, ebtables, sudo, git, xinetd,
                bash-completion
 Build-Conflicts: lxcfs, libpam-cgfs
-Standards-Version: 3.9.7
+Standards-Version: 3.9.8
 Homepage: https://github.com/lappis-tools/holodev
 Vcs-Git: https://github.com/lappis-tools/holodev.git
 
 Package: holodev
 Architecture: all
 Depends: libvirt-bin | libvirt-clients, libvirt-bin | libvirt-daemon-system,
-         bridge-utils, debootstrap, lxc, sudo, git, bash-completion,
+         bridge-utils, debootstrap, lxc, sudo, git, bash-completion, xinetd,
          ${misc:Depends}
 Suggests: cgmanager
 Conflicts: lxcfs, libpam-cgfs

@@ -20,8 +20,7 @@ systems...
 HOST_USER=$USER
 HOST_UID=$(getent passwd | grep "^$USER:" | cut -d":" -f3)
 CURRENT_DIRECTORY=$(basename `pwd`)
-MOUNT_POINT=$(echo $CURRENT_DIRECTORY | tr '[:lower:]' '[:upper:]')
-DEBIAN_RELEASE=wheezy
+DEBIAN_RELEASE=jessie
 INVALID_OPTIONS=false
 NO_GIT_BRANCH=false
 GIT_BRANCH=
@@ -31,6 +30,9 @@ LXC_VERSION=$(lxc-ls --version)
 DUMMY_MODE=false
 LANG=C
 LC_CTYPE=$LANG
+BIND_LOCALHOST_PORT=3000
+ARCH=
+HOME_DIRECTORY=HOLODEV
 
 # Detect OS
 if [ -f /etc/lsb-release ]; then
@@ -42,6 +44,8 @@ elif [ -f /etc/arch-release ]; then
   OS=Arch
 elif [ -f /etc/SuSE-release ]; then
   OS=Suse
+elif [ -f /etc/fedora-release ]; then
+  OS=Fedora
 else
   OS=$(uname -s)
 fi
@@ -51,13 +55,18 @@ is_under_git_control() {
 }
 
 if is_under_git_control; then
-  GIT_BRANCH=$(git describe --contains --all HEAD)
+  GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 fi
 
+previous=
 for i in "$@"; do
   case $i in
     attach|create|destroy|info|list|restart|run|start|setup|stop)
       COMMAND=$i
+      shift
+      ;;
+    --bind)
+      BIND_LOCALHOST_PORT=$2
       shift
       ;;
     --no-branch)
@@ -74,7 +83,7 @@ for i in "$@"; do
       ;;
     --version)
       shift
-      echo 0.8
+      echo 0.9
       exit 0
       ;;
     --dummy)
@@ -85,36 +94,43 @@ for i in "$@"; do
       LIST_ALL_CONTAINERS=true
       shift
       ;;
-    jessie|sid|squeeze|stable|stretch|testing|wheezy)
+    --arch)
+      ARCH=$2
+      shift 2
       ;;
     *)
-      if [ -z $COMMAND ] || [ $COMMAND != 'run' ]; then
-        BRANCH_EXISTS=$(git rev-parse --abbrev-ref --all | grep "^$i$")
-        if [ -z $BRANCH_EXISTS ]; then
-          echo "W: unknown option '$i'"
-          INVALID_OPTIONS=true
-        fi
+      if [ -n $previous ] && [ "$previous" = '--arch' ]; then
+        # we don't need validation for --arch param
+        true
+      elif [ -n $previous ] && [ "$previous" = '--release' ]; then
+        # we don't need validation for --release param
+        true
+      elif [ -n $previous ] && [ "$previous" = '--branch' ]; then
+        # we don't need validation for --branch param
+        true
+      elif [ -n $previous ] && [ "$previous" = '--bind' ]; then
+        # TODO validate if --bind param is only-number
+        true
+      elif [ -z "$COMMAND" ] || [ "$COMMAND" != 'run' ]; then
+        INVALID_OPTIONS=true
       fi
       ;;
   esac
+  previous=$i
 done
 
-if $INVALID_OPTIONS; then
-  exit 3
-fi
-
-if [ -z $COMMAND ]; then
-  echo "E: missing command" >&2
+if [ -z $COMMAND ] || $INVALID_OPTIONS; then
+  echo "E: missing command or invalid options" >&2
   echo "" >&2
   echo "Usage: `basename $0` <command> [options]" >&2
   echo "" >&2
-  echo "* command = {attach|create|destroy|info|list|restart|run|start|setup|stop}" >&2
-  echo "* options = --no-branch" >&2
-  echo "            --branch <branch-name>" >&2
-  echo "            --dummy" >&2
-  echo "            --release <debian-codename>" >&2
-  echo "            --version" >&2
-  echo "            --all" >&2
+  echo "* <command> = {attach|create|destroy|info|list|restart|run|start|setup|stop}" >&2
+  echo "* [options] = --no-branch" >&2
+  echo "              --branch <branch-name>" >&2
+  echo "              --dummy" >&2
+  echo "              --release <debian-codename>" >&2
+  echo "              --version" >&2
+  echo "              --all" >&2
   exit 2
 fi
 
@@ -207,8 +223,8 @@ lxc_attach() {
 create_user_into_container() {
   info "creating my user into the container"
   if $DUMMY_MODE || ! sudo grep $HOST_USER /var/lib/lxc/$CONTAINER_NAME/rootfs/etc/passwd > /dev/null; then
-    lxc_attach adduser --system --shell /bin/bash --home /$MOUNT_POINT --uid $HOST_UID --disabled-password --quiet $HOST_USER
-    lxc_attach chown $HOST_USER:nogroup /$MOUNT_POINT
+    lxc_attach adduser --system --shell /bin/bash --home /$HOME_DIRECTORY --uid $HOST_UID --disabled-password --quiet $HOST_USER
+    lxc_attach chown $HOST_USER:nogroup /$HOME_DIRECTORY
   fi
 }
 
@@ -219,6 +235,18 @@ add_user_to_sudo() {
     lxc_attach apt-get -y install debian-archive-keyring sudo
     run sh -c "echo '%sudo ALL=(ALL) NOPASSWD:ALL' > /var/lib/lxc/$CONTAINER_NAME/rootfs/etc/sudoers.d/sudo-group-nopasswd"
     lxc_attach adduser $HOST_USER sudo
+  fi
+}
+
+copy_dot_files_into_container() {
+  info "copying dot files (gnupg, ssh, gitconfig, etc) into the container"
+  if [ -d ~/.gnupg ]; then
+    run sh -c "cp -r ~$HOST_USER/.gnupg /var/lib/lxc/$CONTAINER_NAME/rootfs/$HOME_DIRECTORY/"
+    run sh -c "chown -R $HOST_USER:nogroup /var/lib/lxc/$CONTAINER_NAME/rootfs/$HOME_DIRECTORY/.gnupg"
+  fi
+  if [ -f ~/.gitconfig ]; then
+    run sh -c "cp ~$HOST_USER/.gitconfig /var/lib/lxc/$CONTAINER_NAME/rootfs/$HOME_DIRECTORY/"
+    run sh -c "chown -R $HOST_USER:nogroup /var/lib/lxc/$CONTAINER_NAME/rootfs/$HOME_DIRECTORY/.gitconfig"
   fi
 }
 
@@ -237,6 +265,7 @@ setup_libvirt_Debian() {
   if [ -n $NET_ACTIVE ] && [ "$NET_ACTIVE" != 'yes' ]; then
     sudo virsh net-start default
   fi
+  sudo systemctl enable libvirt-guests
 }
 
 setup_libvirt_Ubuntu() {
@@ -255,6 +284,48 @@ setup_libvirt_Arch() {
     sleep 2s
   done
   setup_libvirt_Debian
+}
+
+setup_libvirt_Linux() {
+  setup_libvirt_Debian
+}
+
+setup_libvirt_Fedora() {
+  setup_libvirt_Debian
+}
+
+create_xinetd_config_file() {
+  local FILENAME=/tmp/holodev-$CONTAINER_NAME.xinetd
+  CONTAINER_IP=$(do_info | grep 'IP:' | awk '{print $2}')
+  cat > $FILENAME <<EOF
+    service holodev-$CONTAINER_NAME
+    {
+       socket_type = stream
+       wait        = no
+       user        = root
+       type        = UNLISTED
+       bind        = 127.0.0.1
+       redirect    = $CONTAINER_IP $BIND_LOCALHOST_PORT
+       port        = $BIND_LOCALHOST_PORT
+    }
+EOF
+  echo $FILENAME
+}
+
+xinetd_bind() {
+  info "binding localhost:$BIND_LOCALHOST_PORT"
+  if is_container_stopped; then
+    error "container $CONTAINER_NAME isn't running!"
+  else
+    sudo xinetd -f $(create_xinetd_config_file) -pidfile /run/$CONTAINER_NAME.xinetd.pid
+  fi
+}
+
+xinetd_unbind() {
+  if [ -e /run/$CONTAINER_NAME.xinetd.pid ]; then
+    info "un-binding localhost:$BIND_LOCALHOST_PORT"
+    sudo kill `cat /run/$CONTAINER_NAME.xinetd.pid`
+  fi
 }
 
 : <<=cut
@@ -315,21 +386,28 @@ do_create() {
 
   # create container, deboostrap debian
   if [ ! -d /var/lib/lxc/$CONTAINER_NAME ]; then
-    run LC_ALL=$LANG lxc-create -n $CONTAINER_NAME -t debian -- -r $DEBIAN_RELEASE
+    if [ ! -z $ARCH ]; then
+      run LC_ALL=$LANG lxc-create -n $CONTAINER_NAME -t debian -- -r $DEBIAN_RELEASE -a $ARCH
+    else
+      run LC_ALL=$LANG lxc-create -n $CONTAINER_NAME -t debian -- -r $DEBIAN_RELEASE
+    fi
   fi
 
   # mount current curectory (suppose is the source-code of project i'm working on) into container
-  run sh -c "echo `pwd` /var/lib/lxc/$CONTAINER_NAME/rootfs/$MOUNT_POINT none bind 0 0 > /var/lib/lxc/$CONTAINER_NAME/fstab"
+  run sh -c "echo `pwd` /var/lib/lxc/$CONTAINER_NAME/rootfs/$HOME_DIRECTORY/$CURRENT_DIRECTORY none bind 0 0 > /var/lib/lxc/$CONTAINER_NAME/fstab"
 
   # create directory into container to mount project sources I'm working on
-  if ! sudo test -d /var/lib/lxc/$CONTAINER_NAME/rootfs/$MOUNT_POINT; then
-    run sh -c "mkdir /var/lib/lxc/$CONTAINER_NAME/rootfs/$MOUNT_POINT"
+  if ! sudo test -d /var/lib/lxc/$CONTAINER_NAME/rootfs/$HOME_DIRECTORY/$CURRENT_DIRECTORY; then
+    run sh -c "mkdir -p /var/lib/lxc/$CONTAINER_NAME/rootfs/$HOME_DIRECTORY/$CURRENT_DIRECTORY"
+    run sh -c "echo 'cd $CURRENT_DIRECTORY' > /var/lib/lxc/$CONTAINER_NAME/rootfs/$HOME_DIRECTORY/.bash_profile"
+    run sh -c "chown -R $HOST_USER:nogroup /var/lib/lxc/$CONTAINER_NAME/rootfs/$HOME_DIRECTORY/.bash_profile"
   fi
 
   create_default_configuration_file
   start_if_stopped
   create_user_into_container
   add_user_to_sudo
+  copy_dot_files_into_container
   ensure_UTF8_under_container
 }
 
@@ -362,9 +440,15 @@ up_network() {
     if [ $SYSTEMD_IS_ACTIVE ]; then
       info "waiting the system be operational"
       IS_SYSTEM_RUNNING=$(lxc_attach systemctl is-system-running)
-      while ! echo $IS_SYSTEM_RUNNING | grep -q -e 'degraded' -e 'running'; do
-        sleep 1s
-        IS_SYSTEM_RUNNING=$(lxc_attach systemctl is-system-running)
+      RETRY=5
+      while [ $RETRY -gt 0 ]; do
+        if ! echo $IS_SYSTEM_RUNNING | grep -q -e 'degraded' -e 'running'; then
+          sleep 2s
+          IS_SYSTEM_RUNNING=$(lxc_attach systemctl is-system-running)
+          RETRY=$(echo "$RETRY - 1" | bc)
+        else
+          RETRY=0
+        fi
       done
       lxc_attach systemctl enable systemd-networkd.service
       lxc_attach systemctl start systemd-networkd.service
@@ -378,15 +462,18 @@ do_start() {
   run lxc-start -n $CONTAINER_NAME -d
   run lxc-wait -n $CONTAINER_NAME -s RUNNING
   up_network
+  xinetd_bind
 }
 
 do_stop() {
   highlight "stopping '$CONTAINER_NAME'"
+  xinetd_unbind
   run lxc-stop -n $CONTAINER_NAME
 }
 
 do_destroy() {
   highlight "destroing '$CONTAINER_NAME'"
+  xinetd_unbind
   run lxc-destroy -n $CONTAINER_NAME -f
 }
 
