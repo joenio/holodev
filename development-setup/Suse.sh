@@ -12,6 +12,7 @@ zypper --non-interactive in \
         which \
         make \
         ncurses-utils \
+        perl \
 
 echo 'PATH=$PATH:/usr/share/shunit2/src' >> /etc/profile.local
 

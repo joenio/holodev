@@ -16,7 +16,8 @@ dnf --best --allowerasing --assumeyes install \
             make \
             lxc-templates \
             gnupg \
-            xinetd
+            xinetd \
+            perl \
 
 echo 'PATH=$PATH:/usr/share/shunit2' > /etc/profile.d/shunit2.sh
 echo 'export PATH'                  >> /etc/profile.d/shunit2.sh
