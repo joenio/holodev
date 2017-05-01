@@ -9,5 +9,4 @@ endif
 
 %:
 	make manpage
-	mv holodev.1 debian/
 	dh $@ --with bash-completion
