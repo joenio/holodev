@@ -1,6 +1,9 @@
 all:
 	@echo "nothing to do"
 
+manpage:
+	@pod2man holodev > holodev.1
+
 test:
 	$(foreach test,$(wildcard tests/*_test.sh), sh $(test);)
 
