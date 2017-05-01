@@ -8,4 +8,6 @@ else
 endif
 
 %:
+	make manpage
+	mv holodev.1 debian/holodev.1
 	dh $@ --with bash-completion
