@@ -8,7 +8,7 @@
 
 =head1 SYNOPSIS
 
-   $ holodev create
+   $ holodev <COMMAND> [OPTIONS]
 
 =head1 DESCRIPTION
 
@@ -359,6 +359,14 @@ do_attach() {
   lxc_attach su - $HOST_USER
 }
 
+: <<=cut
+
+=item setup
+
+(pending)
+
+=cut
+
 do_setup() {
   which sudo > /dev/null; if [ $? -ne 0 ]; then
     echo
@@ -380,6 +388,14 @@ do_setup() {
     setup_libvirt_$OS
   fi
 }
+
+: <<=cut
+
+=item create
+
+(pending)
+
+=cut
 
 do_create() {
   highlight "creating '$CONTAINER_NAME' with '$DEBIAN_RELEASE'"
@@ -411,10 +427,26 @@ do_create() {
   ensure_UTF8_under_container
 }
 
+: <<=cut
+
+=item info
+
+(pending)
+
+=cut
+
 do_info() {
   highlight "getting info about '$CONTAINER_NAME'"
   run lxc-info -n $CONTAINER_NAME
 }
+
+: <<=cut
+
+=item run
+
+(pending)
+
+=cut
 
 do_run() {
   COMMAND="$@"
@@ -457,6 +489,14 @@ up_network() {
   lxc_attach service networking start
 }
 
+: <<=cut
+
+=item start
+
+(pending)
+
+=cut
+
 do_start() {
   highlight "starting '$CONTAINER_NAME'"
   run lxc-start -n $CONTAINER_NAME -d
@@ -465,11 +505,27 @@ do_start() {
   xinetd_bind
 }
 
+: <<=cut
+
+=item stop
+
+(pending)
+
+=cut
+
 do_stop() {
   highlight "stopping '$CONTAINER_NAME'"
   xinetd_unbind
   run lxc-stop -n $CONTAINER_NAME
 }
+
+: <<=cut
+
+=item destroy
+
+(pending)
+
+=cut
 
 do_destroy() {
   highlight "destroing '$CONTAINER_NAME'"
