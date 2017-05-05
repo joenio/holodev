@@ -1,19 +1,18 @@
 #!/bin/sh
 
 : <<=cut
-
 =head1 NAME
 
-   holodev - tool that makes it easier the creation Linux containers
+holodev - tool that makes it easier the creation Linux containers
 
 =head1 SYNOPSIS
 
-   $ holodev <COMMAND> [OPTIONS]
+   holodev <COMMAND> [OPTIONS]
 
 =head1 DESCRIPTION
 
 A tool to facilitate the creation of GNU/Linux Containers running Debian
-systems...
+system.
 
 =cut
 
@@ -134,6 +133,14 @@ if [ -z $COMMAND ] || $INVALID_OPTIONS; then
   exit 2
 fi
 
+: <<=cut
+=pod
+
+Naming containers is automatic defined by holodev itself, it uses the current
+directory name and the git branch name when is the case... (pendente)
+
+=cut
+
 if $NO_GIT_BRANCH || [ -z $GIT_BRANCH ]; then
   CONTAINER_NAME=$CURRENT_DIRECTORY
 else
@@ -196,6 +203,14 @@ error() {
   echo "${RED}[HOLODEV] $@${ENDCOLOR}"
 }
 
+: <<=cut
+=pod
+
+When creating containers the holodev creates LXC configuration file under
+F<< /var/lib/lxc/<CONTAINER_NAME>/config >> for each container.
+
+=cut
+
 create_default_configuration_file() {
   info "creating default configuration file"
   run sh -c "sed -i 's/lxc.network./#lxc.network./' /var/lib/lxc/$CONTAINER_NAME/config"
@@ -220,6 +235,14 @@ lxc_attach() {
   fi
 }
 
+: <<=cut
+=pod
+
+holodev creates a user into container using the same username in use on host
+machine.
+
+=cut
+
 create_user_into_container() {
   info "creating my user into the container"
   if $DUMMY_MODE || ! sudo grep $HOST_USER /var/lib/lxc/$CONTAINER_NAME/rootfs/etc/passwd > /dev/null; then
@@ -227,6 +250,14 @@ create_user_into_container() {
     lxc_attach chown $HOST_USER:nogroup /$HOME_DIRECTORY
   fi
 }
+
+: <<=cut
+=pod
+
+The user created into the container by holodev is added to sudo into the
+container machine.
+
+=cut
 
 add_user_to_sudo() {
   info "adding the user created in the container to sudo"
@@ -237,6 +268,26 @@ add_user_to_sudo() {
     lxc_attach adduser $HOST_USER sudo
   fi
 }
+
+: <<=cut
+=pod
+
+holodev copy some files from host machine into the container, only the files
+available on host machine under the home of user running holodev are copied.
+
+=over
+
+=item *
+
+F<~/.gnupg>
+
+=item *
+
+F<~/.gitconfig>
+
+=back
+
+=cut
 
 copy_dot_files_into_container() {
   info "copying dot files (gnupg, ssh, gitconfig, etc) into the container"
@@ -294,6 +345,17 @@ setup_libvirt_Fedora() {
   setup_libvirt_Debian
 }
 
+: <<=cut
+=pod
+
+holodev uses C<xinetd> to binds port between host machine and container machine,
+by default it uses the C<3000> port, but a diferent port can be defined passing
+the option C<--bind> when starting a container, eg:
+
+   holodev start --bind 4004
+
+=cut
+
 create_xinetd_config_file() {
   local FILENAME=/tmp/holodev-$CONTAINER_NAME.xinetd
   CONTAINER_IP=$(do_info | grep 'IP:' | awk '{print $2}')
@@ -329,7 +391,6 @@ xinetd_unbind() {
 }
 
 : <<=cut
-
 =head1 COMMANDS
 
 =over
@@ -346,7 +407,6 @@ do_restart() {
 }
 
 : <<=cut
-
 =item attach
 
 connect to the container console
@@ -360,7 +420,6 @@ do_attach() {
 }
 
 : <<=cut
-
 =item setup
 
 (pending)
@@ -390,7 +449,6 @@ do_setup() {
 }
 
 : <<=cut
-
 =item create
 
 (pending)
@@ -520,7 +578,6 @@ do_stop() {
 }
 
 : <<=cut
-
 =item destroy
 
 (pending)
@@ -534,11 +591,11 @@ do_destroy() {
 }
 
 : <<=cut
-
 =item list
 
 list all containers
 
+=back
 =cut
 
 do_list() {
@@ -554,12 +611,61 @@ do_$COMMAND "$@"
 exit 0
 
 : <<=cut
+=head1 OPTIONS
+
+=over
+
+=item --bind
+
+(descrever opcao)
+
+=item --no-branch
+
+(descrever opcao)
+
+=item --branch
+
+(descrever opcao)
+
+=item --release
+
+(descrever opcao)
+
+=item --version
+
+(descrever opcao)
+
+=item --dummy
+
+(descrever opcao)
+
+=item --all
+
+(descrever opcao)
+
+=item --arch
+
+(descrever opcao)
+
+=item --version
+
+(descrever opcao)
 
 =back
 
+=head1 EXAMPLES
+
+Create fresh container with Debian Jessie:
+
+   holodev create --release jessie
+
+Attach to the console of container and bind the 8080 port:
+
+   holodev attach --bind 8080
+
 =head1 SEE ALSO
 
-L<perlpod|pod::perlpod>, L<perlpodspec|pod::perlpodspec>
+L<lxc>, L<lxc-create>, L<git>, L<git-branch>
 
 =head1 LICENSE
 
