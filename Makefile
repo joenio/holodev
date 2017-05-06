@@ -17,3 +17,6 @@ test-vagrant:
 		echo "";\
 		vagrant ssh -c 'cd /vagrant && make test' $$machine;\
 	done
+
+clean:
+	rm -f *.1
