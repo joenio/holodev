@@ -486,7 +486,6 @@ do_create() {
 }
 
 : <<=cut
-
 =item info
 
 (pending)
@@ -499,7 +498,6 @@ do_info() {
 }
 
 : <<=cut
-
 =item run
 
 (pending)
@@ -548,10 +546,10 @@ up_network() {
 }
 
 : <<=cut
-
 =item start
 
-(pending)
+Executes C<lxc-start> in background mode and wait the container up and RUNNING,
+initialize the network service on the container and bind port using xinetd.
 
 =cut
 
@@ -564,10 +562,9 @@ do_start() {
 }
 
 : <<=cut
-
 =item stop
 
-(pending)
+Unbind xinetd port and stop the container with C<lxc-stop> command.
 
 =cut
 
@@ -580,7 +577,8 @@ do_stop() {
 : <<=cut
 =item destroy
 
-(pending)
+Unbind xinetd port and force remotion of the container with C<lxc-destroy>
+command.
 
 =cut
 
@@ -593,7 +591,8 @@ do_destroy() {
 : <<=cut
 =item list
 
-list all containers
+List all containers match the current directory name, is C<--all> option
+is passed then directory name is ignored and all LXC containers are listed.
 
 =back
 =cut
@@ -615,7 +614,7 @@ exit 0
 
 =over
 
-=item --bind
+=item --bind I<< <port-number> >>
 
 (descrever opcao)
 
@@ -623,17 +622,16 @@ exit 0
 
 (descrever opcao)
 
-=item --branch
+=item --branch I<< <git-branch-name> >>
 
 (descrever opcao)
 
-=item --release
+=item --release I<< <debian-release-name> >>
 
-(descrever opcao)
+Specify the version of Debian used in new containers (default: jessie), eg
+creating Debian version 8, Stretch:
 
-=item --version
-
-(descrever opcao)
+   holodev create --release stretch
 
 =item --dummy
 
@@ -643,13 +641,14 @@ exit 0
 
 (descrever opcao)
 
-=item --arch
+=item --arch I<< <architecture> >>
 
-(descrever opcao)
+Set the container architecture, default is the same architecture of host
+machine.
 
 =item --version
 
-(descrever opcao)
+Prints holodev version and exit.
 
 =back
 
