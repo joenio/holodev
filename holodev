@@ -14,6 +14,28 @@ holodev - tool that makes it easier the creation Linux containers
 A tool to facilitate the creation of GNU/Linux Containers running Debian
 system.
 
+The C<holodev> script creates Linux Containers using the current directory plus
+the C<git branch> to compose the container name, it covers the scenario where,
+for each project (directory), there is a Linux Container, so that it is not
+necessary to install development dependecies to your system.
+
+For example, if I'm working on I<Noosfero> project and I have a clone of the
+sources in the F<noosfero> directory, if I'm on the branch F<master> it will create a
+container called B<noosfero-master> when I call C<holodev create>:
+
+    ~/src/noosfero$ holodev create
+
+The container B<noosfero-master> will be created with Debian Jessie (default).
+If you wish to inform another version of Debian just use the C<--release>:
+
+   ~/src/noosfero$ holodev create --release jessie
+
+If you do not want to use the branch C<git> to compose the container name, use option C<--no-branch>:
+
+   ~/src/noosfero$ holodev create --no-branch
+
+This will create a container called B<noosfero>.
+
 =cut
 
 HOST_USER=$USER
@@ -207,7 +229,14 @@ error() {
 =pod
 
 When creating containers the holodev creates LXC configuration file under
-F<< /var/lib/lxc/<CONTAINER_NAME>/config >> for each container.
+F<< /var/lib/lxc/<CONTAINER_NAME>/config >> for each container. See an
+example of F<config> file:
+
+   lxc.network.type = veth
+   lxc.network.link = virbr0
+   lxc.mount = /var/lib/lxc/<CONTAINER_NAME>/fstab
+   lxc.aa_allow_incomplete = 1
+   lxc.aa_profile = unconfined
 
 =cut
 
@@ -272,7 +301,7 @@ add_user_to_sudo() {
 : <<=cut
 =pod
 
-holodev copy some files from host machine into the container, only the files
+holodev copy some files and directories from host machine into the container, only the files
 available on host machine under the home of user running holodev are copied.
 
 =over
@@ -397,7 +426,7 @@ xinetd_unbind() {
 
 =item restart
 
-restart the container
+Restart the container associated with the current directory.
 
 =cut
 
@@ -409,7 +438,8 @@ do_restart() {
 : <<=cut
 =item attach
 
-connect to the container console
+Connect to the container console, if the container is stopped holodev starts
+then before attach.
 
 =cut
 

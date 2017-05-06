@@ -103,23 +103,6 @@ if you want the bleeding edge version.
 
 (pending)
 
-## Using
-
-The `holodev` script creates Linux Containers using the current directory plus the `git branch` to compose the container name, it covers the scenario where, for each project (directory), there is a Linux Container, so that it is not necessary to install development dependecies to your system.
-
-For example, in the `noosfero` directory, in the branch `master` it will create a container called `noosfero-master`:
-
-    ~/src/noosfero$ holodev create
-
-The container `noosfero-master` will be created with Debian Jessie (default). If you wish to inform another version of Debian just use the `--release`:
-
-    ~/src/noosfero$ holodev create --release jessie
-
-If you do not want to use the branch `git` to compose the container name, use option `--no-branch`:
-
-    ~/src/noosfero$ holodev create --no-branch
-
-This will create a container called `noosfero`.
 
 ## Development
 
