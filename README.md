@@ -103,7 +103,6 @@ if you want the bleeding edge version.
 
 (pending)
 
-
 ## Development
 
 `holodev` has a small test suite implemented based on `shunit2`:

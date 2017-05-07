@@ -12,29 +12,8 @@ holodev - tool that makes it easier the creation Linux containers
 =head1 DESCRIPTION
 
 A tool to facilitate the creation of GNU/Linux Containers running Debian
-system.
+system aimed to be used as a development environment.
 
-The C<holodev> script creates Linux Containers using the current directory plus
-the C<git branch> to compose the container name, it covers the scenario where,
-for each project (directory), there is a Linux Container, so that it is not
-necessary to install development dependecies to your system.
-
-For example, if I'm working on I<Noosfero> project and I have a clone of the
-sources in the F<noosfero> directory, if I'm on the branch F<master> it will create a
-container called B<noosfero-master> when I call C<holodev create>:
-
-    ~/src/noosfero$ holodev create
-
-The container B<noosfero-master> will be created with Debian Jessie (default).
-If you wish to inform another version of Debian just use the C<--release>:
-
-   ~/src/noosfero$ holodev create --release jessie
-
-If you do not want to use the branch C<git> to compose the container name, use option C<--no-branch>:
-
-   ~/src/noosfero$ holodev create --no-branch
-
-This will create a container called B<noosfero>.
 
 =cut
 
@@ -158,8 +137,35 @@ fi
 : <<=cut
 =pod
 
-Naming containers is automatic defined by holodev itself, it uses the current
-directory name and the git branch name when is the case... (pendente)
+Features:
+
+=over
+
+=item *
+
+Naming containers is automatic defined, the C<holodev> creates Linux Containers (LXC) using the current directory plus
+the C<git branch> to compose the container name, it covers the scenario where,
+for each project (directory), there is a Linux Container, so that it is not
+necessary to install development dependecies to your system.
+
+For example, if I'm working on I<Noosfero> project and I have a clone of the
+sources in the F<noosfero> directory, and if I'm on the git branch F<master> it
+will create a container called B<noosfero-master> when I call C<holodev create>:
+
+    ~/src/noosfero$ holodev create
+
+The container B<noosfero-master> will be created with Debian Jessie (default).
+If you wish to inform another version of Debian just use the C<--release>
+option:
+
+   ~/src/noosfero$ holodev create --release stretch
+
+If you do not want to use the I<git branch name> to compose the container name,
+use the option C<--no-branch>:
+
+   ~/src/noosfero$ holodev create --no-branch
+
+This will create a container called just B<noosfero>.
 
 =cut
 
@@ -228,9 +234,11 @@ error() {
 : <<=cut
 =pod
 
+=item *
+
 When creating containers the holodev creates LXC configuration file under
 F<< /var/lib/lxc/<CONTAINER_NAME>/config >> for each container. See an
-example of F<config> file:
+example of the F<config> file:
 
    lxc.network.type = veth
    lxc.network.link = virbr0
@@ -267,6 +275,8 @@ lxc_attach() {
 : <<=cut
 =pod
 
+=item *
+
 holodev creates a user into container using the same username in use on host
 machine.
 
@@ -282,6 +292,8 @@ create_user_into_container() {
 
 : <<=cut
 =pod
+
+=item *
 
 The user created into the container by holodev is added to sudo into the
 container machine.
@@ -300,6 +312,8 @@ add_user_to_sudo() {
 
 : <<=cut
 =pod
+
+=item *
 
 holodev copy some files and directories from host machine into the container, only the files
 available on host machine under the home of user running holodev are copied.
@@ -377,6 +391,8 @@ setup_libvirt_Fedora() {
 : <<=cut
 =pod
 
+=item *
+
 holodev uses C<xinetd> to binds port between host machine and container machine,
 by default it uses the C<3000> port, but a diferent port can be defined passing
 the option C<--bind> when starting a container, eg:
@@ -420,6 +436,8 @@ xinetd_unbind() {
 }
 
 : <<=cut
+=back
+
 =head1 COMMANDS
 
 =over
@@ -678,7 +696,7 @@ machine.
 
 =item --version
 
-Prints holodev version and exit.
+Show the version number.
 
 =back
 
@@ -698,12 +716,10 @@ L<lxc>, L<lxc-create>, L<git>, L<git-branch>
 
 =head1 LICENSE
 
-Such a wonderful and unusual idea is certainly protected by many patents...
-
-Or maybe not...
+GNU GPLv2+
 
 =head1 AUTHOR
 
-B<I> had this great idea...
+See L<README.md> file.
 
 =cut
