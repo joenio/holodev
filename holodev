@@ -712,7 +712,7 @@ Attach to the console of container and bind the 8080 port:
 
 =head1 SEE ALSO
 
-L<lxc>, L<lxc-create>, L<git>, L<git-branch>
+L<lxc(7)>, L<lxc-create(1)>, L<git(1)>, L<git-branch(1)>
 
 =head1 LICENSE
 
@@ -720,6 +720,6 @@ GNU GPLv2+
 
 =head1 AUTHOR
 
-See L<README.md> file.
+See F<README.md> file.
 
 =cut
