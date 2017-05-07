@@ -14,7 +14,6 @@ holodev - tool that makes it easier the creation Linux containers
 A tool to facilitate the creation of GNU/Linux Containers running Debian
 system aimed to be used as a development environment.
 
-
 =cut
 
 HOST_USER=$USER
@@ -536,7 +535,7 @@ do_create() {
 : <<=cut
 =item info
 
-(pending)
+Get info about a container through L<lxc-info(1)> command.
 
 =cut
 
@@ -548,7 +547,8 @@ do_info() {
 : <<=cut
 =item run
 
-(pending)
+Run an arbitrary command inside the container (it start the container if it is
+stopped).
 
 =cut
 
@@ -668,7 +668,7 @@ exit 0
 
 =item --no-branch
 
-(descrever opcao)
+Use only the name of current directory as container name.
 
 =item --branch I<< <git-branch-name> >>
 
@@ -687,7 +687,7 @@ creating Debian version 8, Stretch:
 
 =item --all
 
-(descrever opcao)
+This option can be used with C<list> command.
 
 =item --arch I<< <architecture> >>
 
