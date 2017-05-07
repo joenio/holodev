@@ -1,0 +1,243 @@
+<?xml version="1.0" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title></title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rev="made" href="mailto:root@localhost" />
+</head>
+
+<body>
+
+
+
+<ul id="index">
+  <li><a href="#NAME">NAME</a></li>
+  <li><a href="#SYNOPSIS">SYNOPSIS</a></li>
+  <li><a href="#DESCRIPTION">DESCRIPTION</a></li>
+  <li><a href="#COMMANDS">COMMANDS</a></li>
+  <li><a href="#OPTIONS">OPTIONS</a></li>
+  <li><a href="#EXAMPLES">EXAMPLES</a></li>
+  <li><a href="#SEE-ALSO">SEE ALSO</a></li>
+  <li><a href="#LICENSE">LICENSE</a></li>
+  <li><a href="#AUTHOR">AUTHOR</a></li>
+</ul>
+
+<h1 id="NAME">NAME</h1>
+
+<p>holodev - tool that makes it easier the creation Linux containers</p>
+
+<h1 id="SYNOPSIS">SYNOPSIS</h1>
+
+<pre><code>   holodev &lt;COMMAND&gt; [OPTIONS]</code></pre>
+
+<h1 id="DESCRIPTION">DESCRIPTION</h1>
+
+<p>A tool to facilitate the creation of GNU/Linux Containers running Debian system aimed to be used as a development environment.</p>
+
+<p>Features:</p>
+
+<ul>
+
+<li><p>Naming containers is automatic defined, the <code>holodev</code> creates Linux Containers (LXC) using the current directory plus the <code>git branch</code> to compose the container name, it covers the scenario where, for each project (directory), there is a Linux Container, so that it is not necessary to install development dependecies to your system.</p>
+
+<p>For example, if I&#39;m working on <i>Noosfero</i> project and I have a clone of the sources in the <i>noosfero</i> directory, and if I&#39;m on the git branch <i>master</i> it will create a container called <b>noosfero-master</b> when I call <code>holodev create</code>:</p>
+
+<pre><code>    ~/src/noosfero$ holodev create</code></pre>
+
+<p>The container <b>noosfero-master</b> will be created with Debian Jessie (default). If you wish to inform another version of Debian just use the <code>--release</code> option:</p>
+
+<pre><code>   ~/src/noosfero$ holodev create --release stretch</code></pre>
+
+<p>If you do not want to use the <i>git branch name</i> to compose the container name, use the option <code>--no-branch</code>:</p>
+
+<pre><code>   ~/src/noosfero$ holodev create --no-branch</code></pre>
+
+<p>This will create a container called just <b>noosfero</b>.</p>
+
+</li>
+<li><p>When creating containers the holodev creates LXC configuration file under <i>/var/lib/lxc/&lt;CONTAINER_NAME&gt;/config</i> for each container. See an example of the <i>config</i> file:</p>
+
+<pre><code>   lxc.network.type = veth
+   lxc.network.link = virbr0
+   lxc.mount = /var/lib/lxc/&lt;CONTAINER_NAME&gt;/fstab
+   lxc.aa_allow_incomplete = 1
+   lxc.aa_profile = unconfined</code></pre>
+
+</li>
+<li><p>holodev creates a user into container using the same username in use on host machine.</p>
+
+</li>
+<li><p>The user created into the container by holodev is added to sudo into the container machine.</p>
+
+</li>
+<li><p>holodev copy some files and directories from host machine into the container, only the files available on host machine under the home of user running holodev are copied.</p>
+
+<ul>
+
+<li><p><i>~/.gnupg</i></p>
+
+</li>
+<li><p><i>~/.gitconfig</i></p>
+
+</li>
+</ul>
+
+</li>
+<li><p>holodev uses <code>xinetd</code> to binds port between host machine and container machine, by default it uses the <code>3000</code> port, but a diferent port can be defined passing the option <code>--bind</code> when starting a container, eg:</p>
+
+<pre><code>   holodev start --bind 4004</code></pre>
+
+</li>
+</ul>
+
+<h1 id="COMMANDS">COMMANDS</h1>
+
+<dl>
+
+<dt id="restart">restart</dt>
+<dd>
+
+<p>Restart the container associated with the current directory.</p>
+
+</dd>
+<dt id="attach">attach</dt>
+<dd>
+
+<p>Connect to the container console, if the container is stopped holodev starts then before attach.</p>
+
+</dd>
+<dt id="setup">setup</dt>
+<dd>
+
+<p>(pending)</p>
+
+</dd>
+<dt id="create">create</dt>
+<dd>
+
+<p>(pending)</p>
+
+</dd>
+<dt id="info">info</dt>
+<dd>
+
+<p>(pending)</p>
+
+</dd>
+<dt id="run">run</dt>
+<dd>
+
+<p>(pending)</p>
+
+</dd>
+<dt id="start">start</dt>
+<dd>
+
+<p>Executes <code>lxc-start</code> in background mode and wait the container up and RUNNING, initialize the network service on the container and bind port using xinetd.</p>
+
+</dd>
+<dt id="stop">stop</dt>
+<dd>
+
+<p>Unbind xinetd port and stop the container with <code>lxc-stop</code> command.</p>
+
+</dd>
+<dt id="destroy">destroy</dt>
+<dd>
+
+<p>Unbind xinetd port and force remotion of the container with <code>lxc-destroy</code> command.</p>
+
+</dd>
+<dt id="list">list</dt>
+<dd>
+
+<p>List all containers match the current directory name, is <code>--all</code> option is passed then directory name is ignored and all LXC containers are listed.</p>
+
+</dd>
+</dl>
+
+<h1 id="OPTIONS">OPTIONS</h1>
+
+<dl>
+
+<dt id="bind-port-number">--bind <i>&lt;port-number&gt;</i></dt>
+<dd>
+
+<p>(descrever opcao)</p>
+
+</dd>
+<dt id="no-branch">--no-branch</dt>
+<dd>
+
+<p>(descrever opcao)</p>
+
+</dd>
+<dt id="branch-git-branch-name">--branch <i>&lt;git-branch-name&gt;</i></dt>
+<dd>
+
+<p>(descrever opcao)</p>
+
+</dd>
+<dt id="release-debian-release-name">--release <i>&lt;debian-release-name&gt;</i></dt>
+<dd>
+
+<p>Specify the version of Debian used in new containers (default: jessie), eg creating Debian version 8, Stretch:</p>
+
+<pre><code>   holodev create --release stretch</code></pre>
+
+</dd>
+<dt id="dummy">--dummy</dt>
+<dd>
+
+<p>(descrever opcao)</p>
+
+</dd>
+<dt id="all">--all</dt>
+<dd>
+
+<p>(descrever opcao)</p>
+
+</dd>
+<dt id="arch-architecture">--arch <i>&lt;architecture&gt;</i></dt>
+<dd>
+
+<p>Set the container architecture, default is the same architecture of host machine.</p>
+
+</dd>
+<dt id="version">--version</dt>
+<dd>
+
+<p>Show the version number.</p>
+
+</dd>
+</dl>
+
+<h1 id="EXAMPLES">EXAMPLES</h1>
+
+<p>Create fresh container with Debian Jessie:</p>
+
+<pre><code>   holodev create --release jessie</code></pre>
+
+<p>Attach to the console of container and bind the 8080 port:</p>
+
+<pre><code>   holodev attach --bind 8080</code></pre>
+
+<h1 id="SEE-ALSO">SEE ALSO</h1>
+
+<p><a href="http://man.he.net/man7/lxc">lxc(7)</a>, <a href="http://man.he.net/man1/lxc-create">lxc-create(1)</a>, <a href="http://man.he.net/man1/git">git(1)</a>, <a href="http://man.he.net/man1/git-branch">git-branch(1)</a></p>
+
+<h1 id="LICENSE">LICENSE</h1>
+
+<p>GNU GPLv2+</p>
+
+<h1 id="AUTHOR">AUTHOR</h1>
+
+<p>See <i>README.md</i> file.</p>
+
+
+</body>
+
+</html>
+
+
