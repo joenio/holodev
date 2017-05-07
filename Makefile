@@ -3,7 +3,6 @@ all:
 
 manpage:
 	@pod2man -c Holodev\ Manual -r Holodev\ $$(./holodev --version) holodev > holodev.1
-	@pod2html --infile=holodev --outfile=holodev.1.html
 	@pod2markdown holodev holodev.1.md
 
 test:
