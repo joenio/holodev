@@ -469,7 +469,8 @@ do_attach() {
 : <<=cut
 =item setup
 
-(pending)
+This command must not be used directly, it is used by installing process,
+for example Debian package calls this command after package installation.
 
 =cut
 
@@ -498,7 +499,9 @@ do_setup() {
 : <<=cut
 =item create
 
-(pending)
+Create new LXC container using directory name and git branch to compose the
+container name, it is possible to specify the branch name using C<--branch>
+option or C<--no-branch>.
 
 =cut
 
@@ -664,7 +667,8 @@ exit 0
 
 =item --bind I<< <port-number> >>
 
-(descrever opcao)
+When starting a container C<holodev> binds a port between host and guest
+machines, by default the I<3000> port is used.
 
 =item --no-branch
 
@@ -672,7 +676,11 @@ Use only the name of current directory as container name.
 
 =item --branch I<< <git-branch-name> >>
 
-(descrever opcao)
+By default, the current branch name is used (the HEAD), but it is possible
+to change the branch name to be used to compose de container name, for example,
+if the current directory is F<noosfero> and current branch name is F<master> when
+I execute the C<holodev create --branch stable> then the LXC container name will
+be B<noosfero-stable>.
 
 =item --release I<< <debian-release-name> >>
 
@@ -683,7 +691,7 @@ creating Debian version 8, Stretch:
 
 =item --dummy
 
-(descrever opcao)
+Only simulate what C<holodev> do for each command.
 
 =item --all
 
