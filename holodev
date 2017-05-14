@@ -455,8 +455,8 @@ do_restart() {
 : <<=cut
 =item attach
 
-Connect to the container console, if the container is stopped holodev starts
-then before attach.
+Connect to the container console, if the container is stopped holodev first
+start then attach.
 
 =cut
 
@@ -501,7 +501,7 @@ do_setup() {
 
 Create new LXC container using directory name and git branch to compose the
 container name, it is possible to specify the branch name using C<--branch>
-option or C<--no-branch>.
+option or C<--no-branch> to ignores branch name.
 
 =cut
 
