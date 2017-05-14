@@ -20,4 +20,4 @@ test-vagrant:
 	done
 
 clean:
-	rm -f *.1 *.tmp
+	rm -f *.1 *.1.md *.tmp
