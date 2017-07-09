@@ -48,6 +48,10 @@ for i in "$@"; do
       COMMAND=$i
       shift
       ;;
+    help|--help)
+      COMMAND=help
+      shift
+      ;;
     --bind)
       BIND_LOCALHOST_PORT=$2
       shift
@@ -104,17 +108,7 @@ done
 
 if [ -z $COMMAND ] || $INVALID_OPTIONS; then
   echo "E: missing command or invalid options" >&2
-  echo "" >&2
-  echo "Usage: `basename $0` <command> [options]" >&2
-  echo "" >&2
-  echo "* <command> = {attach|create|destroy|info|list|restart|run|start|setup|stop}" >&2
-  echo "* [options] = --no-branch" >&2
-  echo "              --branch <branch-name>" >&2
-  echo "              --dummy" >&2
-  echo "              --release <debian-codename>" >&2
-  echo "              --version" >&2
-  echo "              --all" >&2
-  exit 2
+  COMMAND=help
 fi
 
 if $NO_GIT_BRANCH || [ -z $GIT_BRANCH ]; then
@@ -447,6 +441,18 @@ do_list() {
   else
     run lxc-ls -1 $CURRENT_DIRECTORY
   fi
+}
+
+do_help() {
+  echo "Usage: `basename $0` <command> [options]" >&2
+  echo "" >&2
+  echo "* <command> = {attach|create|destroy|info|list|restart|run|start|setup|stop}" >&2
+  echo "* [options] = --no-branch" >&2
+  echo "              --branch <branch-name>" >&2
+  echo "              --dummy" >&2
+  echo "              --release <debian-codename>" >&2
+  echo "              --version" >&2
+  echo "              --all" >&2
 }
 
 do_$COMMAND "$@"
