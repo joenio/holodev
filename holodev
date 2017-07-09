@@ -106,8 +106,28 @@ for i in "$@"; do
   previous=$i
 done
 
+info() {
+  GRAY=$(tput bold; tput setaf 8)
+  ENDCOLOR=$(tput sgr0)
+  if ! $DUMMY_MODE; then
+    echo "${GRAY}[HOLODEV] $@${ENDCOLOR}"
+  fi
+}
+
+highlight() {
+  YELLOW=$(tput bold; tput setaf 3)
+  ENDCOLOR=$(tput sgr0)
+  echo "${YELLOW}[HOLODEV] $@${ENDCOLOR}"
+}
+
+error() {
+  RED=$(tput bold; tput setaf 1)
+  ENDCOLOR=$(tput sgr0)
+  echo "${RED}[HOLODEV] $@${ENDCOLOR}"
+}
+
 if [ -z $COMMAND ] || $INVALID_OPTIONS; then
-  echo "E: missing command or invalid options" >&2
+  error "missing command or invalid options" >&2
   COMMAND=help
 fi
 
@@ -151,26 +171,6 @@ start_if_stopped() {
   if is_container_stopped; then
     do_start
   fi
-}
-
-info() {
-  GRAY=$(tput bold; tput setaf 8)
-  ENDCOLOR=$(tput sgr0)
-  if ! $DUMMY_MODE; then
-    echo "${GRAY}[HOLODEV] $@${ENDCOLOR}"
-  fi
-}
-
-highlight() {
-  YELLOW=$(tput bold; tput setaf 3)
-  ENDCOLOR=$(tput sgr0)
-  echo "${YELLOW}[HOLODEV] $@${ENDCOLOR}"
-}
-
-error() {
-  RED=$(tput bold; tput setaf 1)
-  ENDCOLOR=$(tput sgr0)
-  echo "${RED}[HOLODEV] $@${ENDCOLOR}"
 }
 
 create_default_configuration_file() {
