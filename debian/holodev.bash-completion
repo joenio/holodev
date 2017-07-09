@@ -7,16 +7,16 @@ _holodev()
     holodev_command="${COMP_WORDS[1]}"
     commands="attach create destroy help --help info list restart run start setup stop --version"
 
-    opts_create()  { echo "--branch --no-branch --release --dummy --arch --bind"; }
-    opts_attach()  { echo "--branch --no-branch --dummy"; }
+    opts_create()  { echo "--branch --no-branch --release --dummy --arch --bind --verbose"; }
+    opts_attach()  { echo "--branch --no-branch --dummy --verbose"; }
     opts_destroy() { opts_attach; }
     opts_info()    { opts_attach; }
     opts_restart() { opts_attach; }
     opts_run()     { opts_attach; }
-    opts_start()   { echo "--branch --no-branch --dummy --bind"; }
+    opts_start()   { echo "--branch --no-branch --dummy --bind --verbose"; }
     opts_stop()    { opts_attach; }
-    opts_list()    { echo "--all --dummy"; }
-    opts_setup()   { echo "--dummy"; }
+    opts_list()    { echo "--all --dummy --verbose"; }
+    opts_setup()   { echo "--dummy --verbose"; }
 
     for command in $commands; do
       if [ -n $holodev_command ] && [ "$holodev_command" = $command ]; then
