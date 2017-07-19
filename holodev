@@ -316,7 +316,6 @@ do_restart() {
 }
 
 do_attach() {
-  highlight "opening console to '$CONTAINER_NAME'"
   start_if_stopped
   lxc_attach su - $HOST_USER
 }
