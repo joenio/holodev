@@ -8,7 +8,7 @@ INVALID_OPTIONS=false
 NO_GIT_BRANCH=false
 GIT_BRANCH=
 CONTAINER_NAME=
-LIST_ALL_CONTAINERS=false
+ARGV_ALL=false
 LXC_VERSION=$(lxc-ls --version)
 DUMMY_MODE=false
 LANG=C
@@ -79,7 +79,8 @@ for i in "$@"; do
       shift
       ;;
     --all)
-      LIST_ALL_CONTAINERS=true
+      DESTROY_ALL_CONTAINERS=true
+      ARGV_ALL=true
       shift
       ;;
     --arch)
