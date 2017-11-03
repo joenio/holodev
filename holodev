@@ -17,6 +17,7 @@ BIND_LOCALHOST_PORT=3000
 ARCH=
 HOME_DIRECTORY=HOLODEV
 VERBOSE=false
+QUIET=false
 
 # Detect OS
 if [ -f /etc/lsb-release ]; then
@@ -113,17 +114,19 @@ for i in "$@"; do
 done
 
 info() {
-  GRAY=$(tput bold; tput setaf 8)
-  ENDCOLOR=$(tput sgr0)
   if ! $DUMMY_MODE && $VERBOSE; then
+    GRAY=$(tput bold; tput setaf 8)
+    ENDCOLOR=$(tput sgr0)
     echo "${GRAY}[HOLODEV] $@${ENDCOLOR}"
   fi
 }
 
 highlight() {
-  YELLOW=$(tput bold; tput setaf 3)
-  ENDCOLOR=$(tput sgr0)
-  echo "${YELLOW}[HOLODEV] $@${ENDCOLOR}"
+  if ! $QUIET; then
+    YELLOW=$(tput bold; tput setaf 3)
+    ENDCOLOR=$(tput sgr0)
+    echo "${YELLOW}[HOLODEV] $@${ENDCOLOR}"
+  fi
 }
 
 error() {
@@ -149,14 +152,27 @@ compare_version() {
   [ $VER1 -ge $VER2 ]
 }
 
+explain() {
+  if ! $QUIET; then
+    CYAN=$(tput setaf 6)
+    ENDCOLOR=$(tput sgr0)
+    echo "${CYAN}[HOLODEV] $@${ENDCOLOR}"
+  fi
+}
+
 run() {
-  CYAN=$(tput setaf 6)
-  ENDCOLOR=$(tput sgr0)
   if $DUMMY_MODE; then
-    echo "${CYAN}[HOLODEV] sudo $@${ENDCOLOR}"
+    explain "sudo $@"
   else
+    explain "sudo $@"
     sudo "$@"
   fi
+}
+
+quiet() {
+  QUIET=true
+  $@
+  QUIET=false
 }
 
 is_container_stopped() {
@@ -420,7 +436,6 @@ up_network() {
 }
 
 do_start() {
-  highlight "starting '$CONTAINER_NAME'"
   run lxc-start -n $CONTAINER_NAME -d
   run lxc-wait -n $CONTAINER_NAME -s RUNNING
   up_network
