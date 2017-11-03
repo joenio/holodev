@@ -66,9 +66,9 @@ for i in "$@"; do
       GIT_BRANCH=$2
       shift 2
       ;;
-    --release)
-      DEBIAN_RELEASE=$2
-      shift 2
+    stable|testing|sid|squeeze|wheezy|jessie|stretch)
+      DEBIAN_RELEASE=$i
+      shift
       ;;
     --version)
       shift
@@ -95,9 +95,6 @@ for i in "$@"; do
     *)
       if [ -n $previous ] && [ "$previous" = '--arch' ]; then
         # we don't need validation for --arch param
-        true
-      elif [ -n $previous ] && [ "$previous" = '--release' ]; then
-        # we don't need validation for --release param
         true
       elif [ -n $previous ] && [ "$previous" = '--branch' ]; then
         # we don't need validation for --branch param
@@ -135,8 +132,8 @@ error() {
   echo "${RED}[HOLODEV] $@${ENDCOLOR}"
 }
 
-if [ -z $COMMAND ] || $INVALID_OPTIONS; then
-  error "missing command or invalid options" >&2
+if $INVALID_OPTIONS; then
+  error "invalid options" >&2
   COMMAND=help
 fi
 
