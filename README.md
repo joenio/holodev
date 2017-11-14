@@ -65,9 +65,11 @@ For development releases, you'll need to add the `devel:tools` equivalent to you
     # zypper ar http://download.opensuse.org/repositories/devel:/tools/openSUSE_13.1/devel:tools.repo
 
 Then update your repo list:
+
     # zypper ref
 
 And finally install `holodev`:
+
     # zypper in holodev
 
 ### Stable release
@@ -75,9 +77,11 @@ And finally install `holodev`:
 `holodev` is part of the default repositories for current OpenSUSE distros (Leap and Tumbleweed), so no additional repo is needed.
 
 Make sure your repos are updated:
+
     # zypper ref
 
 And install `holodev`:
+
     # zypper in holodev
 
 
