@@ -17,8 +17,8 @@
 
 
 Name:           holodev
-Version:        0.6
-Release:        4%{?dist}
+Version:        0.9
+Release:        0
 Summary:        A holodeck developers
 License:        GPL-2.0+
 Group:          Development/Tools/Other
@@ -33,6 +33,7 @@ BuildRequires:  lxc
 BuildRequires:  shunit2
 BuildRequires:  sudo
 Requires:       bash-completion
+Requires:       debootstrap
 Requires:       bridge-utils
 Requires:       git
 Requires:       libvirt >= 1.3.2
@@ -48,6 +49,9 @@ Tool that makes it easier to create Linux containers for development using Debia
 %autosetup -n %{name}-%{version}
 
 %build
+
+%check
+make test-minimal
 
 %install
 # install holodev binary
@@ -68,3 +72,4 @@ holodev setup
 %{_bindir}/holodev
 
 %changelog
+
