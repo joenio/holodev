@@ -27,6 +27,8 @@ elif [ -f /etc/arch-release ]; then
   OS=Arch
 elif [ -f /etc/SuSE-release ]; then
   OS=Suse
+elif [ -f /etc/fedora-release ]; then
+  OS=Fedora
 else
   OS=$(uname -s)
 fi
@@ -44,6 +46,10 @@ for i in "$@"; do
   case $i in
     attach|create|destroy|info|list|restart|run|start|setup|stop)
       COMMAND=$i
+      shift
+      ;;
+    help|--help)
+      COMMAND=help
       shift
       ;;
     --bind)
@@ -64,7 +70,7 @@ for i in "$@"; do
       ;;
     --version)
       shift
-      echo 0.8
+      echo 0.9
       exit 0
       ;;
     --dummy)
@@ -100,19 +106,29 @@ for i in "$@"; do
   previous=$i
 done
 
+info() {
+  GRAY=$(tput bold; tput setaf 8)
+  ENDCOLOR=$(tput sgr0)
+  if ! $DUMMY_MODE; then
+    echo "${GRAY}[HOLODEV] $@${ENDCOLOR}"
+  fi
+}
+
+highlight() {
+  YELLOW=$(tput bold; tput setaf 3)
+  ENDCOLOR=$(tput sgr0)
+  echo "${YELLOW}[HOLODEV] $@${ENDCOLOR}"
+}
+
+error() {
+  RED=$(tput bold; tput setaf 1)
+  ENDCOLOR=$(tput sgr0)
+  echo "${RED}[HOLODEV] $@${ENDCOLOR}"
+}
+
 if [ -z $COMMAND ] || $INVALID_OPTIONS; then
-  echo "E: missing command or invalid options" >&2
-  echo "" >&2
-  echo "Usage: `basename $0` <command> [options]" >&2
-  echo "" >&2
-  echo "* <command> = {attach|create|destroy|info|list|restart|run|start|setup|stop}" >&2
-  echo "* [options] = --no-branch" >&2
-  echo "              --branch <branch-name>" >&2
-  echo "              --dummy" >&2
-  echo "              --release <debian-codename>" >&2
-  echo "              --version" >&2
-  echo "              --all" >&2
-  exit 2
+  error "missing command or invalid options" >&2
+  COMMAND=help
 fi
 
 if $NO_GIT_BRANCH || [ -z $GIT_BRANCH ]; then
@@ -155,26 +171,6 @@ start_if_stopped() {
   if is_container_stopped; then
     do_start
   fi
-}
-
-info() {
-  GRAY=$(tput bold; tput setaf 8)
-  ENDCOLOR=$(tput sgr0)
-  if ! $DUMMY_MODE; then
-    echo "${GRAY}[HOLODEV] $@${ENDCOLOR}"
-  fi
-}
-
-highlight() {
-  YELLOW=$(tput bold; tput setaf 3)
-  ENDCOLOR=$(tput sgr0)
-  echo "${YELLOW}[HOLODEV] $@${ENDCOLOR}"
-}
-
-error() {
-  RED=$(tput bold; tput setaf 1)
-  ENDCOLOR=$(tput sgr0)
-  echo "${RED}[HOLODEV] $@${ENDCOLOR}"
 }
 
 create_default_configuration_file() {
@@ -246,6 +242,7 @@ setup_libvirt_Debian() {
   if [ -n $NET_ACTIVE ] && [ "$NET_ACTIVE" != 'yes' ]; then
     sudo virsh net-start default
   fi
+  sudo systemctl enable libvirt-guests
 }
 
 setup_libvirt_Ubuntu() {
@@ -263,6 +260,14 @@ setup_libvirt_Arch() {
   while [ ! -S /var/run/libvirt/libvirt-sock ]; do
     sleep 2s
   done
+  setup_libvirt_Debian
+}
+
+setup_libvirt_Linux() {
+  setup_libvirt_Debian
+}
+
+setup_libvirt_Fedora() {
   setup_libvirt_Debian
 }
 
@@ -294,11 +299,9 @@ xinetd_bind() {
 }
 
 xinetd_unbind() {
-  info "un-binding localhost:$BIND_LOCALHOST_PORT"
   if [ -e /run/$CONTAINER_NAME.xinetd.pid ]; then
+    info "un-binding localhost:$BIND_LOCALHOST_PORT"
     sudo kill `cat /run/$CONTAINER_NAME.xinetd.pid`
-  else
-    error "xinetd isn't running for this container"
   fi
 }
 
@@ -394,9 +397,15 @@ up_network() {
     if [ $SYSTEMD_IS_ACTIVE ]; then
       info "waiting the system be operational"
       IS_SYSTEM_RUNNING=$(lxc_attach systemctl is-system-running)
-      while ! echo $IS_SYSTEM_RUNNING | grep -q -e 'degraded' -e 'running'; do
-        sleep 1s
-        IS_SYSTEM_RUNNING=$(lxc_attach systemctl is-system-running)
+      RETRY=5
+      while [ $RETRY -gt 0 ]; do
+        if ! echo $IS_SYSTEM_RUNNING | grep -q -e 'degraded' -e 'running'; then
+          sleep 2s
+          IS_SYSTEM_RUNNING=$(lxc_attach systemctl is-system-running)
+          RETRY=$(echo "$RETRY - 1" | bc)
+        else
+          RETRY=0
+        fi
       done
       lxc_attach systemctl enable systemd-networkd.service
       lxc_attach systemctl start systemd-networkd.service
@@ -432,6 +441,18 @@ do_list() {
   else
     run lxc-ls -1 $CURRENT_DIRECTORY
   fi
+}
+
+do_help() {
+  echo "Usage: `basename $0` <command> [options]" >&2
+  echo "" >&2
+  echo "* <command> = {attach|create|destroy|info|list|restart|run|start|setup|stop}" >&2
+  echo "* [options] = --no-branch" >&2
+  echo "              --branch <branch-name>" >&2
+  echo "              --dummy" >&2
+  echo "              --release <debian-codename>" >&2
+  echo "              --version" >&2
+  echo "              --all" >&2
 }
 
 do_$COMMAND "$@"

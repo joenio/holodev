@@ -9,6 +9,8 @@ elif [ -f /etc/arch-release ]; then
   OS=Arch
 elif [ -f /etc/SuSE-release ]; then
   OS=Suse
+elif [ -f /etc/fedora-release ]; then
+  OS=Fedora
 else
   OS=$(uname -s)
 fi

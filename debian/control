@@ -7,7 +7,7 @@ Build-Depends: libvirt-bin | libvirt-clients, libvirt-bin | libvirt-daemon-syste
                bridge-utils, debootstrap, lxc, dnsmasq, ebtables, sudo, git, xinetd,
                bash-completion
 Build-Conflicts: lxcfs, libpam-cgfs
-Standards-Version: 3.9.7
+Standards-Version: 3.9.8
 Homepage: https://github.com/lappis-tools/holodev
 Vcs-Git: https://github.com/lappis-tools/holodev.git
 
