@@ -57,7 +57,7 @@ for i in "$@"; do
       NO_GIT_BRANCH=true
       shift
       ;;
-    --branch)
+    --branch|-b)
       GIT_BRANCH=$2
       shift 2
       ;;
@@ -98,6 +98,9 @@ for i in "$@"; do
         true
       elif [ -n $previous ] && [ "$previous" = '--branch' ]; then
         # we don't need validation for --branch param
+        true
+      elif [ -n $previous ] && [ "$previous" = '-b' ]; then
+        # we don't need validation for -b param
         true
       elif [ -z "$COMMAND" ] || [ "$COMMAND" != 'run' ]; then
         INVALID_OPTIONS=true
@@ -165,8 +168,8 @@ quiet() {
 }
 
 container_exists() {
-  CONTAINER_STATUS=$(run lxc-info -s -n $CONTAINER_NAME)
-  echo $CONTAINER_STATUS | grep "State:" > /dev/null
+  N=$(run lxc-info -s -n $CONTAINER_NAME 2>&1 | grep --count 'State:')
+  [ $N -gt 0 ]
 }
 
 is_container_stopped() {
@@ -327,7 +330,7 @@ do_create() {
     exit 3
   fi
 
-  if [ ! -d /var/lib/lxc/$CONTAINER_NAME ]; then
+  if ! sudo test -d /var/lib/lxc/$CONTAINER_NAME; then
     # create container, deboostrap debian
     if [ ! -z $ARCH ]; then
       run LC_ALL=$LANG lxc-create -n $CONTAINER_NAME -t debian -- -r $DEBIAN_RELEASE -a $ARCH
@@ -433,7 +436,7 @@ do_help() {
   echo "" >&2
   echo "* <command> = {attach|create|destroy|info|list|restart|run|start|setup|stop}" >&2
   echo "* [options] = --no-branch" >&2
-  echo "              --branch <branch-name>" >&2
+  echo "              --branch <branch-name> | -b <branch-name>" >&2
   echo "              --dummy" >&2
   echo "              --release <debian-codename> | -r <debian-codename>" >&2
   echo "              --version" >&2
