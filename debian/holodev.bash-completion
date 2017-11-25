@@ -7,7 +7,7 @@ _holodev()
     holodev_command="${COMP_WORDS[1]}"
     commands="attach create destroy help --help info list restart run start setup stop --version"
 
-    opts_create()  { echo "--branch --no-branch --release --dummy --arch --bind --verbose"; }
+    opts_create()  { echo "--branch --no-branch --release -r --dummy --arch --bind --verbose"; }
     opts_attach()  { echo "--branch --no-branch --dummy --verbose"; }
     opts_destroy() { opts_attach; }
     opts_info()    { opts_attach; }
@@ -25,7 +25,7 @@ _holodev()
             COMPREPLY=( $(compgen -W "$(git rev-parse --abbrev-ref --all)" -- ${cur}) )
             return 0
             ;;
-          --release)
+          --release|-r)
             COMPREPLY=( $(compgen -W "squeeze wheezy jessie stable testing stretch sid" -- ${cur}) )
             return 0
             ;;

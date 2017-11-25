@@ -61,7 +61,7 @@ for i in "$@"; do
       GIT_BRANCH=$2
       shift 2
       ;;
-    --release)
+    --release|-r)
       DEBIAN_RELEASE=$2
       shift 2
       ;;
@@ -75,7 +75,6 @@ for i in "$@"; do
       shift
       ;;
     --all)
-      DESTROY_ALL_CONTAINERS=true
       ARGV_ALL=true
       shift
       ;;
@@ -93,6 +92,9 @@ for i in "$@"; do
         true
       elif [ -n $previous ] && [ "$previous" = '--release' ]; then
         # we don't need validation for --release param
+        true
+      elif [ -n $previous ] && [ "$previous" = '-r' ]; then
+        # we don't need validation for -r param
         true
       elif [ -n $previous ] && [ "$previous" = '--branch' ]; then
         # we don't need validation for --branch param
@@ -165,6 +167,11 @@ quiet() {
   QUIET=true
   $@
   QUIET=false
+}
+
+container_exists() {
+  CONTAINER_STATUS=$(run lxc-info -s -n $CONTAINER_NAME)
+  echo $CONTAINER_STATUS | grep "State:" > /dev/null
 }
 
 is_container_stopped() {
@@ -318,15 +325,23 @@ do_setup() {
 }
 
 do_create() {
-  highlight "creating '$CONTAINER_NAME' with '$DEBIAN_RELEASE'"
+  highlight "creating '$CONTAINER_NAME' with Debian '$DEBIAN_RELEASE'"
 
-  # create container, deboostrap debian
+  if container_exists; then
+    echo "container '$CONTAINER_NAME' already exists";
+    exit 3
+  fi
+
   if [ ! -d /var/lib/lxc/$CONTAINER_NAME ]; then
+    # create container, deboostrap debian
     if [ ! -z $ARCH ]; then
       run LC_ALL=$LANG lxc-create -n $CONTAINER_NAME -t debian -- -r $DEBIAN_RELEASE -a $ARCH
     else
       run LC_ALL=$LANG lxc-create -n $CONTAINER_NAME -t debian -- -r $DEBIAN_RELEASE
     fi
+  else
+    echo "directory '/var/lib/lxc/$CONTAINER_NAME' already exists, please remove it before";
+    exit 3
   fi
 
   # mount current curectory (suppose is the source-code of project i'm working on) into container
@@ -411,7 +426,7 @@ do_destroy() {
 
 do_list() {
   highlight "listing containers"
-  if $LIST_ALL_CONTAINERS; then
+  if $ARGV_ALL; then
     run lxc-ls -1
   else
     run lxc-ls -1 $CURRENT_DIRECTORY
@@ -425,7 +440,7 @@ do_help() {
   echo "* [options] = --no-branch" >&2
   echo "              --branch <branch-name>" >&2
   echo "              --dummy" >&2
-  echo "              --release <debian-codename>" >&2
+  echo "              --release <debian-codename> | -r <debian-codename>" >&2
   echo "              --version" >&2
   echo "              --all" >&2
 }
