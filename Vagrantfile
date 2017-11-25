@@ -1,6 +1,6 @@
 VAGRANTFILE_API_VERSION = '2'
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
-  config.vm.network 'public_network', bridge: "wlan0"
+  config.vm.network 'public_network'
   { jessie:    'deb/jessie-i386',
     trusty:    'ubuntu/trusty32',
     wily:      'ubuntu/wily32',
