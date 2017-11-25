@@ -7,13 +7,13 @@ _holodev()
     holodev_command="${COMP_WORDS[1]}"
     commands="attach create destroy help --help info list restart run start setup stop --version"
 
-    opts_create()  { echo "--branch --no-branch --release -r --dummy --arch --bind --verbose"; }
-    opts_attach()  { echo "--branch --no-branch --dummy --verbose"; }
+    opts_create()  { echo "--branch -b --no-branch --release -r --dummy --arch --verbose"; }
+    opts_attach()  { echo "--branch -b --no-branch --dummy --verbose"; }
     opts_destroy() { opts_attach; }
     opts_info()    { opts_attach; }
     opts_restart() { opts_attach; }
     opts_run()     { opts_attach; }
-    opts_start()   { echo "--branch --no-branch --dummy --bind --verbose"; }
+    opts_start()   { echo "--branch -b --no-branch --dummy --verbose"; }
     opts_stop()    { opts_attach; }
     opts_list()    { echo "--all --dummy --verbose"; }
     opts_setup()   { echo "--dummy --verbose"; }
@@ -21,7 +21,7 @@ _holodev()
     for command in $commands; do
       if [ -n $holodev_command ] && [ "$holodev_command" = $command ]; then
         case "${prev}" in
-          --branch)
+          --branch|-b)
             COMPREPLY=( $(compgen -W "$(git rev-parse --abbrev-ref --all)" -- ${cur}) )
             return 0
             ;;
