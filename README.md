@@ -3,6 +3,9 @@
 
 # holodev
 
+`holodev` maintains a [UNIX][unix] (Do One Thing and Do It Well) and [GNU][gnu]
+(free as in freedom) philosophies.
+
 ## A holodeck for software development
 
 A tool to facilitate the creation of Linux Containers for developing Debian systems
@@ -170,3 +173,6 @@ To avoid running tests when building package run:
 ## License
 
 GNU GPLv2+
+
+[unix]: https://en.wikipedia.org/wiki/Unix_philosophy#Do_One_Thing_and_Do_It_Well
+[gnu]: https://www.gnu.org/philosophy/
