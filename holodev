@@ -115,6 +115,12 @@ info() {
   fi
 }
 
+if $NO_GIT_BRANCH || [ -z $GIT_BRANCH ]; then
+  CONTAINER_NAME=$CURRENT_DIRECTORY
+else
+  CONTAINER_NAME=$CURRENT_DIRECTORY-$GIT_BRANCH
+fi
+
 highlight() {
   if ! $QUIET; then
     YELLOW=$(tput bold; tput setaf 3)
@@ -128,17 +134,6 @@ error() {
   ENDCOLOR=$(tput sgr0)
   echo "${RED}[HOLODEV] $@${ENDCOLOR}"
 }
-
-if [ -z $COMMAND ] || $INVALID_OPTIONS; then
-  error "missing command or invalid options" >&2
-  COMMAND=help
-fi
-
-if $NO_GIT_BRANCH || [ -z $GIT_BRANCH ]; then
-  CONTAINER_NAME=$CURRENT_DIRECTORY
-else
-  CONTAINER_NAME=$CURRENT_DIRECTORY-$GIT_BRANCH
-fi
 
 compare_version() {
   VER1=$(echo $1 | sed 's/\.//g')
@@ -444,6 +439,12 @@ do_help() {
   echo "              --version" >&2
   echo "              --all" >&2
 }
+
+if [ -z $COMMAND ] || $INVALID_OPTIONS; then
+  error "missing command or invalid options" >&2
+  do_help
+  exit 2
+fi
 
 do_$COMMAND "$@"
 exit 0
