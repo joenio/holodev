@@ -6,7 +6,7 @@ oneTimeSetUp() {
   ./holodev setup
 }
 
-test_code_returned_by_holodev_without_no_arguments() {
+test_code_returned_by_holodev_with_no_arguments() {
   ./holodev >> $LOGFILE 2>&1
   assertEquals "shouldn't return '2'" 2 $?
 }
@@ -38,9 +38,14 @@ test_container_name_under_directory() {
 }
 
 test_create_command_with_dummy_option() {
-  HOLODEV_OUTPUT=$(./holodev create --dummy 2>&1)
+  WORKING_DIR=`pwd`
+  TEMP_DIR=`mktemp --directory`
+  cd $TEMP_DIR
+  HOLODEV_OUTPUT=$($WORKING_DIR/holodev create --dummy 2>&1)
   COUNT=$(echo $HOLODEV_OUTPUT | grep -c 'sudo .*lxc-create -n ')
   assertEquals "'create' command didn't run 'lxc-create'" 1 $COUNT
+  cd $WORKING_DIR
+  rm -rf $TEMP_DIR
 }
 
 test_attach_command_with_dummy_option() {
@@ -90,9 +95,14 @@ test_run_command_with_dummy_option_and_nobranch_under_git_repository() {
 }
 
 test_creating_dummy_i386_container() {
-  HOLODEV_OUTPUT=$(./holodev create --dummy --arch i386 2>&1)
+  WORKING_DIR=`pwd`
+  TEMP_DIR=`mktemp --directory`
+  cd $TEMP_DIR
+  HOLODEV_OUTPUT=$($WORKING_DIR/holodev create --dummy --arch i386 2>&1)
   COUNT=$(echo $HOLODEV_OUTPUT | grep -c 'sudo .*lxc-create -n .* -a i386')
   assertEquals "'create' command didn't pass '-a i386' option to 'lxc-create'" 1 $COUNT
+  cd $WORKING_DIR
+  rm -rf $TEMP_DIR
 }
 
 . shunit2
