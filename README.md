@@ -52,25 +52,42 @@ Install:
 
 ## Installing in OpenSUSE
 
-First of all, you'll need to add our OBS repo into your system by following one of the commands below(select the one for your OpenSUSE release), as superuser:
 
-### Tumbleweed
-    # zypper ar http://download.opensuse.org/repositories/home:/chocoelho/openSUSE_Tumbleweed/home:chocoelho.repo
+### Development release
+For development releases, you'll need to add the `devel:tools` equivalent to your distro version:
 
-### Leap
-    # zypper ar http://download.opensuse.org/repositories/home:/chocoelho/openSUSE_Leap_42.1/home:chocoelho.repo
+#### Tumbleweed
+    # zypper ar http://download.opensuse.org/repositories/devel:/tools/openSUSE_Tumbleweed/devel:tools.repo
 
-### 13.2
-    # zypper ar http://download.opensuse.org/repositories/home:/chocoelho/openSUSE_13.2/home:chocoelho.repo
+#### Leap
+    # zypper ar http://download.opensuse.org/repositories/devel:/tools/openSUSE_Leap_42.1/devel:tools.repo
 
-### 13.1
-    # zypper ar http://download.opensuse.org/repositories/home:/chocoelho/openSUSE_13.1/home:chocoelho.repo
+#### 13.2
+    # zypper ar http://download.opensuse.org/repositories/devel:/tools/openSUSE_13.2/devel:tools.repo
+
+#### 13.1
+    # zypper ar http://download.opensuse.org/repositories/devel:/tools/openSUSE_13.1/devel:tools.repo
 
 Then update your repo list:
+
     # zypper ref
 
-And finally install holodev:
+And finally install `holodev`:
+
     # zypper in holodev
+
+### Stable release
+
+`holodev` is part of the default repositories for current OpenSUSE distros (Leap and Tumbleweed), so no additional repo is needed.
+
+Make sure your repos are updated:
+
+    # zypper ref
+
+And install `holodev`:
+
+    # zypper in holodev
+
 
 ## Installing in Archlinux
 
@@ -86,7 +103,7 @@ Then add:
     SigLevel = Never
     Server = http://repo.archlinux.fr/$arch
 
-To install `yaourt` follow this link instructions [desse link](https://archlinux.fr/yaourt-en)
+To install `yaourt` follow this [link](https://archlinux.fr/yaourt-en) instructions
 
 Finally, install holodev:
 
@@ -147,7 +164,7 @@ To avoid running tests when building package run:
 ## Authors
 
 * Joenio Costa <joenio@joenio.me>
-* Carlos Coelho <carlos@pencillabs.com>
+* Carlos Coelho <carlospecter@gmail.com>
 * Lucas Severo <lucassalves65@gmail.com>
 
 ## License
