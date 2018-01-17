@@ -365,13 +365,11 @@ do_create() {
 }
 
 do_info() {
-  highlight "getting info about '$CONTAINER_NAME'"
   run lxc-info -n $CONTAINER_NAME
 }
 
 do_run() {
   COMMAND="$@"
-  highlight "running '$COMMAND' under '$CONTAINER_NAME'"
   start_if_stopped
   lxc_attach su - $HOST_USER -c "$COMMAND"
 }
@@ -417,17 +415,14 @@ do_start() {
 }
 
 do_stop() {
-  highlight "stopping '$CONTAINER_NAME'"
   run lxc-stop -n $CONTAINER_NAME
 }
 
 do_destroy() {
-  highlight "destroing '$CONTAINER_NAME'"
   run lxc-destroy -n $CONTAINER_NAME -f
 }
 
 do_list() {
-  highlight "listing containers"
   if $ARGV_ALL; then
     run lxc-ls -1
   else
