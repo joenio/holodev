@@ -240,6 +240,10 @@ copy_dot_files_into_container() {
     run sh -c "cp -r ~$HOST_USER/.gnupg /var/lib/lxc/$CONTAINER_NAME/rootfs/$HOME_DIRECTORY/"
     run sh -c "chown -R $HOST_USER:nogroup /var/lib/lxc/$CONTAINER_NAME/rootfs/$HOME_DIRECTORY/.gnupg"
   fi
+  if [ -d ~/.ssh ]; then
+    run sh -c "cp -b -r ~$HOST_USER/.ssh /var/lib/lxc/$CONTAINER_NAME/rootfs/$HOME_DIRECTORY/"
+    run sh -c "chown -R $HOST_USER:nogroup /var/lib/lxc/$CONTAINER_NAME/rootfs/$HOME_DIRECTORY/.ssh"
+  fi
   if [ -f ~/.gitconfig ]; then
     run sh -c "cp ~$HOST_USER/.gitconfig /var/lib/lxc/$CONTAINER_NAME/rootfs/$HOME_DIRECTORY/"
     run sh -c "chown -R $HOST_USER:nogroup /var/lib/lxc/$CONTAINER_NAME/rootfs/$HOME_DIRECTORY/.gitconfig"
