@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/lappis-tools/holodev.svg?branch=master)](https://travis-ci.org/lappis-tools/holodev)
+[![Build Status](https://travis-ci.org/joenio/holodev.svg?branch=master)](https://travis-ci.org/joenio/holodev)
 [![build status](https://gitlab.com/lappis/holodev/badges/master/build.svg)](https://gitlab.com/lappis/holodev/commits/master)
 
 # holodev
