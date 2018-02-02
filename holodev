@@ -426,7 +426,7 @@ do_list() {
   if $ARGV_ALL; then
     run lxc-ls -1
   else
-    run lxc-ls -1 ^$CURRENT_DIRECTORY-
+    run lxc-ls -1 "^$CURRENT_DIRECTORY-|^$CURRENT_DIRECTORY$"
   fi
 }
 
