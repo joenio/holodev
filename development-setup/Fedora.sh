@@ -15,7 +15,8 @@ dnf --best --allowerasing --assumeyes install \
             which \
             make \
             lxc-templates \
-            gnupg
+            gnupg \
+            libpsl
 
 echo 'PATH=$PATH:/usr/share/shunit2' > /etc/profile.d/shunit2.sh
 echo 'export PATH'                  >> /etc/profile.d/shunit2.sh
