@@ -16,23 +16,24 @@ The name `holodev` is a reference to the Holodeck from Star Trek:
 
 Supported GNU/Linux distributions:
 
-* Debian
-  * Squeezy (not supported)
-  * Wheezy (not supported)
-  * Jessie
-  * Stretch
-* Ubuntu
-  * Precise (not supported)
-  * Trusty
-  * Utopic (not tested)
-  * Vivid
-  * Wily
-  * Xenial
-* Archlinux
-* openSUSE
-* Fedora
-  * Fedora 24
-  * Fedora 25
+| **Distro**      | **holodev 0.9** | **holodev 1.0** |
+| --------------- | --------------- | --------------- |
+| Debian Squeezy  | not supported   | not supported   |
+| Debian Wheezy   | not supported   | not supported   |
+| Debian Jessie   | supported       | supported       |
+| Debian Stretch  | supported       | supported       |
+| Ubuntu Precise  | not supported   | ? supported   |
+| Ubuntu Trusty   | supported       | ? supported       |
+| Ubuntu Utopic   | not tested      | ? tested      |
+| Ubuntu Vivid    | supported       | ? supported       |
+| Ubuntu Wily     | supported       | ? supported       |
+| Ubuntu Xenial   | supported       | supported       |
+| Archlinux       | supported       | ? supported       |
+| openSUSE        | supported       | supported       |
+| Fedora 24       | supported       | ? supported       |
+| Fedora 25       | supported       | supported       |
+| Fedora 26       | not tested      | supported       |
+| Fedora 27       | not tested      | ? supported       |
 
 ## sudo
 
