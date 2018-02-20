@@ -1,5 +1,6 @@
 #!/bin/sh
 
+VERSION=1.0
 HOST_USER=$USER
 HOST_UID=$(getent passwd | grep "^$USER:" | cut -d":" -f3)
 CURRENT_DIRECTORY=$(basename `pwd`)
@@ -67,7 +68,7 @@ for i in "$@"; do
       ;;
     --version)
       shift
-      echo 0.9
+      echo $VERSION
       exit 0
       ;;
     --dummy)
