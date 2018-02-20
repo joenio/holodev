@@ -2,7 +2,8 @@
 
 VERSION=1.0
 HOST_USER=$USER
-HOST_UID=$(getent passwd | grep "^$USER:" | cut -d":" -f3)
+HOST_UID=$(id -u $USER)
+HOST_GROUP=$(id -gn $USER)
 CURRENT_DIRECTORY=$(basename `pwd`)
 DEBIAN_RELEASE=jessie
 INVALID_OPTIONS=false
@@ -221,7 +222,7 @@ create_user_into_container() {
   info "creating my user into the container"
   if $DUMMY_MODE || ! sudo grep $HOST_USER /var/lib/lxc/$CONTAINER_NAME/rootfs/etc/passwd > /dev/null; then
     lxc_attach adduser --system --shell /bin/bash --home /$HOME_DIRECTORY --uid $HOST_UID --disabled-password --quiet $HOST_USER
-    lxc_attach chown $HOST_USER:nogroup /$HOME_DIRECTORY
+    lxc_attach chown $HOST_USER:$HOST_GROUP /$HOME_DIRECTORY
   fi
 }
 
@@ -239,15 +240,15 @@ copy_dot_files_into_container() {
   info "copying dot files (gnupg, ssh, gitconfig, etc) into the container"
   if [ -d ~/.gnupg ]; then
     run sh -c "cp -r ~$HOST_USER/.gnupg /var/lib/lxc/$CONTAINER_NAME/rootfs/$HOME_DIRECTORY/"
-    run sh -c "chown -R $HOST_USER:nogroup /var/lib/lxc/$CONTAINER_NAME/rootfs/$HOME_DIRECTORY/.gnupg"
+    run sh -c "chown -R $HOST_USER:$HOST_GROUP /var/lib/lxc/$CONTAINER_NAME/rootfs/$HOME_DIRECTORY/.gnupg"
   fi
   if [ -d ~/.ssh ]; then
     run sh -c "cp -r ~$HOST_USER/.ssh /var/lib/lxc/$CONTAINER_NAME/rootfs/$HOME_DIRECTORY/"
-    run sh -c "chown -R $HOST_USER:nogroup /var/lib/lxc/$CONTAINER_NAME/rootfs/$HOME_DIRECTORY/.ssh"
+    run sh -c "chown -R $HOST_USER:$HOST_GROUP /var/lib/lxc/$CONTAINER_NAME/rootfs/$HOME_DIRECTORY/.ssh"
   fi
   if [ -f ~/.gitconfig ]; then
     run sh -c "cp ~$HOST_USER/.gitconfig /var/lib/lxc/$CONTAINER_NAME/rootfs/$HOME_DIRECTORY/"
-    run sh -c "chown -R $HOST_USER:nogroup /var/lib/lxc/$CONTAINER_NAME/rootfs/$HOME_DIRECTORY/.gitconfig"
+    run sh -c "chown -R $HOST_USER:$HOST_GROUP /var/lib/lxc/$CONTAINER_NAME/rootfs/$HOME_DIRECTORY/.gitconfig"
   fi
 }
 
@@ -354,7 +355,7 @@ do_create() {
   if ! sudo test -d /var/lib/lxc/$CONTAINER_NAME/rootfs/$HOME_DIRECTORY/$CURRENT_DIRECTORY; then
     run sh -c "mkdir -p /var/lib/lxc/$CONTAINER_NAME/rootfs/$HOME_DIRECTORY/$CURRENT_DIRECTORY"
     run sh -c "echo 'cd $CURRENT_DIRECTORY' > /var/lib/lxc/$CONTAINER_NAME/rootfs/$HOME_DIRECTORY/.bash_profile"
-    run sh -c "chown -R $HOST_USER:nogroup /var/lib/lxc/$CONTAINER_NAME/rootfs/$HOME_DIRECTORY/.bash_profile"
+    run sh -c "chown -R $HOST_USER:$HOST_GROUP /var/lib/lxc/$CONTAINER_NAME/rootfs/$HOME_DIRECTORY/.bash_profile"
   fi
 
   create_default_configuration_file
