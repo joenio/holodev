@@ -19,8 +19,8 @@ which aa-status > /dev/null; if [ $? -ne 0 ]; then
   echo
   echo "aa-status not found!" 1>&2
   echo "Disabling LXC Apparmor profile" 1>&2
-  mkdir /etc/apparmor.d/disabled/
-  ln -s /etc/apparmor.d/usr.bin.lxc-start /etc/apparmor.d/disabled/
+  mkdir -p /etc/apparmor.d/disabled/
+  ln -f -s /etc/apparmor.d/usr.bin.lxc-start /etc/apparmor.d/disabled/
 fi
 
 systemctl start libvirtd
