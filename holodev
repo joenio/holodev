@@ -374,6 +374,11 @@ do_run() {
   lxc_attach su - $HOST_USER -c "$COMMAND"
 }
 
+online() {
+  info "verificando..."
+  lxc_attach find /sys/class/net/ -maxdepth 1 -mindepth 1 ! -name "*lo*" -exec sh -c 'cat "$0"/carrier 2>&1 > /dev/null | grep -q "1" && exit 0' {} \;
+}
+
 up_network() {
   # be sure network is up and running
   if lxc_attach which systemctl > /dev/null; then
@@ -381,7 +386,7 @@ up_network() {
     info "checking if systemd is active"
     while [ $RETRY -gt 0 ]; do
       if lxc_attach systemctl 2>&1 | grep -q -e 'Unknown error -1'; then
-        RETRY=$(echo "$RETRY - 1" | bc)
+        RETRY=$((RETRY - 1))
         sleep 1s
       else
         RETRY=0
@@ -396,7 +401,7 @@ up_network() {
         if ! echo $IS_SYSTEM_RUNNING | grep -q -e 'degraded' -e 'running'; then
           sleep 2s
           IS_SYSTEM_RUNNING=$(lxc_attach systemctl is-system-running)
-          RETRY=$(echo "$RETRY - 1" | bc)
+          RETRY=$((RETRY - 1))
         else
           RETRY=0
         fi
@@ -406,6 +411,20 @@ up_network() {
     fi
   fi
   lxc_attach service networking start
+  RETRY=10
+  info "waiting for internet connection (timeout: 10 seconds)..."
+  #if lxc_attach nc -zw10 google.com 443; then
+  #  info "we have connectivity, going ahead"
+  #fi
+  while [ $RETRY -gt 0 ]; do
+    if [ online ]; then
+      RETRY=0
+    else
+      RETRY=$((RETRY - 1))
+    fi
+    sleep 1s
+  done
+  #sleep 10s
 }
 
 do_start() {
