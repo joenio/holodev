@@ -5,7 +5,6 @@ dnf --best --allowerasing --assumeyes install \
             bash-completion \
             bridge-utils \
             debootstrap \
-            dnsmasq \
             ebtables \
             git \
             libvirt \
@@ -17,6 +16,13 @@ dnf --best --allowerasing --assumeyes install \
             lxc-templates \
             gnupg \
             libpsl
+
+FEDORA_RELEASE=$(cat /etc/fedora-release | sed 's/Fedora release \([0-9]\+\) .\+/\1/')
+if [ "$FEDORA_RELEASE" = "27" ]; then
+  dnf --best --allowerasing --assumeyes install dnsmasq-2.77
+else
+  dnf --best --allowerasing --assumeyes install dnsmasq
+fi
 
 echo 'PATH=$PATH:/usr/share/shunit2' > /etc/profile.d/shunit2.sh
 echo 'export PATH'                  >> /etc/profile.d/shunit2.sh
