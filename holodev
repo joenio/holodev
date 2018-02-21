@@ -376,7 +376,6 @@ do_run() {
 }
 
 online() {
-  info "verificando..."
   lxc_attach find /sys/class/net/ -maxdepth 1 -mindepth 1 ! -name "*lo*" -exec sh -c 'cat "$0"/carrier 2>&1 > /dev/null | grep -q "1" && exit 0' {} \;
 }
 
@@ -413,19 +412,17 @@ up_network() {
   fi
   lxc_attach service networking start
   RETRY=10
-  info "waiting for internet connection (timeout: 10 seconds)..."
-  #if lxc_attach nc -zw10 google.com 443; then
-  #  info "we have connectivity, going ahead"
-  #fi
+  info "waiting for internet connection (timeout: 10 seconds)"
   while [ $RETRY -gt 0 ]; do
     if [ online ]; then
+      info "we have connection, going ahead"
       RETRY=0
     else
+      info "(sleep 1s)"
       RETRY=$((RETRY - 1))
+      sleep 1s
     fi
-    sleep 1s
   done
-  #sleep 10s
 }
 
 do_start() {
