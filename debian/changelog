@@ -1,3 +1,23 @@
+holodev (1.0) unstable; urgency=medium
+
+  [ Alessandro Caetano Beltrão ]
+  * update README.md
+
+  [ Carlos Coelho ]
+  * updated README with more update information regarding OpenSUSE release
+  * updated author info
+  * updated rpmbuild spec and changes file
+
+  [ Joenio Costa ]
+  * added fedora support
+  * added --verbose option
+  * added short version -r for --release option
+  * added tests
+  * waiting for internet connection before install packages
+  * documenting distros supported by 0.9 and 1.0 versions
+
+ -- Joenio Costa <joenio@joenio.me>  Sat, 24 Feb 2018 15:47:16 -0300
+
 holodev (0.9) unstable; urgency=medium
 
   * new option `--arch` to set container architecture
