@@ -46,7 +46,7 @@ fi
 previous=
 for i in "$@"; do
   case $i in
-    attach|create|destroy|info|list|restart|run|start|setup|stop)
+    attach|create|destroy|info|list|restart|run|start|setup|stop|snapshot)
       COMMAND=$i
       shift
       ;;
@@ -86,6 +86,12 @@ for i in "$@"; do
     --verbose)
       VERBOSE=true
       shift
+      ;;
+    --)
+      shift
+      LXC_OPTIONS=$@
+      shift $#
+      break
       ;;
     *)
       if [ -n $previous ] && [ "$previous" = '--arch' ]; then
@@ -353,7 +359,7 @@ do_create() {
   # create directory into container to mount project sources I'm working on
   if ! sudo test -d /var/lib/lxc/$CONTAINER_NAME/rootfs/$HOME_DIRECTORY/$CURRENT_DIRECTORY; then
     run sh -c "mkdir -p /var/lib/lxc/$CONTAINER_NAME/rootfs/$HOME_DIRECTORY/$CURRENT_DIRECTORY"
-    run sh -c "echo 'cd $CURRENT_DIRECTORY' > /var/lib/lxc/$CONTAINER_NAME/rootfs/$HOME_DIRECTORY/.bash_profile"
+    run sh -c "echo 'cd /$HOME_DIRECTORY/$CURRENT_DIRECTORY' > /var/lib/lxc/$CONTAINER_NAME/rootfs/$HOME_DIRECTORY/.bash_profile"
     run sh -c "chown -R $HOST_USER /var/lib/lxc/$CONTAINER_NAME/rootfs/$HOME_DIRECTORY/.bash_profile"
   fi
 
@@ -447,10 +453,15 @@ do_list() {
   fi
 }
 
+do_snapshot() {
+  do_stop
+  run lxc-snapshot -n $CONTAINER_NAME $LXC_OPTIONS
+}
+
 do_help() {
-  echo "Usage: `basename $0` <command> [options]" >&2
+  echo "Usage: `basename $0` <command> [options] -- <lxc-options>" >&2
   echo "" >&2
-  echo "* <command> = {attach|create|destroy|info|list|restart|run|start|setup|stop}" >&2
+  echo "* <command> = {attach|create|destroy|info|list|restart|run|start|setup|stop|snapshot}" >&2
   echo "* [options] = --no-branch" >&2
   echo "              --branch <branch-name> | -b <branch-name>" >&2
   echo "              --dummy" >&2
