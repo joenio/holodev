@@ -1,5 +1,10 @@
 #!/bin/sh
 
+if [ $(id -u) -ne 0 ]; then
+  echo "E: please run this script as root"
+  exit 1
+fi
+
 if [ -f /etc/lsb-release ]; then
   . /etc/lsb-release
   OS=$DISTRIB_ID
