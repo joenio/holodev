@@ -7,13 +7,18 @@ oneTimeSetUp() {
 }
 
 test_list_containers() {
-  ./holodev create >> $LOGFILE 2>&1
+  WORKING_DIR=`pwd`
+  TEMP_DIR=`mktemp --directory`
+  cd $TEMP_DIR
+  $WORKING_DIR/holodev create >> $LOGFILE 2>&1
   assertEquals "can't create container" 0 $?
-  NAME=`./holodev info | grep 'Name:' | sed 's/Name:\s\+//'`
-  COUNT=`./holodev list | grep --count $NAME`
+  NAME=`$WORKING_DIR/holodev info | grep 'Name:' | sed 's/Name:\s\+//'`
+  COUNT=`$WORKING_DIR/holodev list | grep --count ^$NAME$`
   assertEquals "container '$NAME' wasn't found on the list of containers" 1 $COUNT
-  ./holodev destroy >> $LOGFILE 2>&1
+  $WORKING_DIR/holodev destroy >> $LOGFILE 2>&1
   assertEquals "can't destroy container" 0 $?
+  cd $WORKING_DIR
+  rm -rf $TEMP_DIR
 }
 
 . shunit2
