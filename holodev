@@ -436,7 +436,7 @@ do_stop() {
 }
 
 do_destroy() {
-  run lxc-destroy -n $CONTAINER_NAME -f
+  run lxc-destroy -n $CONTAINER_NAME -f -s
 }
 
 do_list() {
