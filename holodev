@@ -168,12 +168,6 @@ run() {
   fi
 }
 
-quiet() {
-  QUIET=true
-  $@
-  QUIET=false
-}
-
 container_exists() {
   N=$(run lxc-info -s -n $CONTAINER_NAME 2>&1 | grep --count 'State:')
   [ $N -gt 0 ]
