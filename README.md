@@ -15,27 +15,28 @@ The name `holodev` is a reference to the Holodeck from Star Trek:
 
 Supported GNU/Linux distributions:
 
-| **Distro**          | **holodev 0.9** | **holodev 1.0** |
-| ------------------- | --------------- | --------------- |
-| Debian Squeezy      | not supported   | not supported   |
-| Debian Wheezy       | not supported   | not supported   |
-| Debian Jessie       | supported       | supported       |
-| Debian Stretch      | supported       | supported       |
-| Ubuntu Precise      | not supported   | not supported   |
-| Ubuntu Trusty       | supported       | supported       |
-| Ubuntu Utopic       | not tested      | not tested      |
-| Ubuntu Vivid        | supported       | not tested      |
-| Ubuntu Wily         | supported       | not tested      |
-| Ubuntu Xenial       | supported       | supported       |
-| Archlinux           | supported       | not tested      |
-| openSUSE 42.1       | not tested      | supported       |
-| openSUSE 42.2       | not tested      | supported       |
-| openSUSE 42.3       | not tested      | not supported   |
-| openSUSE Tumbleweed | supported       | supported       |
-| Fedora 24           | supported       | supported       |
-| Fedora 25           | supported       | supported       |
-| Fedora 26           | not tested      | supported       |
-| Fedora 27           | not tested      | supported       |
+| **Distro**          | **holodev 0.9** | **holodev 1.0** | **holodev 1.1** |
+| ------------------- | --------------- | --------------- | --------------- |
+| Debian Squeezy      | not supported   | not supported   | not supported   |
+| Debian Wheezy       | not supported   | not supported   | not supported   |
+| Debian Jessie       | supported       | supported       |                 |
+| Debian Stretch      | not tested      | not tested      | supported       |
+| Debian Buster       | supported       | supported       | supported       |
+| Ubuntu Precise      | not supported   | not supported   | not supported   |
+| Ubuntu Trusty       | supported       | supported       |                 |
+| Ubuntu Utopic       | not tested      | not tested      |                 |
+| Ubuntu Vivid        | supported       | not tested      |                 |
+| Ubuntu Wily         | supported       | not tested      |                 |
+| Ubuntu Xenial       | supported       | supported       |                 |
+| Archlinux           | supported       | not tested      |                 |
+| openSUSE 42.1       | not tested      | supported       |                 |
+| openSUSE 42.2       | not tested      | supported       |                 |
+| openSUSE 42.3       | not tested      | not supported   | not supported   |
+| openSUSE Tumbleweed | supported       | supported       |                 |
+| Fedora 24           | supported       | supported       |                 |
+| Fedora 25           | supported       | supported       |                 |
+| Fedora 26           | not tested      | supported       |                 |
+| Fedora 27           | not tested      | supported       |                 |
 
 ## sudo
 
