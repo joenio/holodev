@@ -178,15 +178,6 @@ is_container_stopped() {
   echo $CONTAINER_STATUS | grep STOPPED > /dev/null
 }
 
-is_apparmor_enabled() {
-  if compare_version $LXC_VERSION '1.1.0' && [ -f /sys/module/apparmor/parameters/enabled ]; then
-    APPARMOR_STATUS=$(cat /sys/module/apparmor/parameters/enabled)
-    echo $APPARMOR_STATUS | grep -e '^Y$' > /dev/null
-  else
-    false
-  fi
-}
-
 start_if_stopped() {
   if is_container_stopped; then
     do_start
@@ -201,12 +192,8 @@ create_default_configuration_file() {
   run sh -c "echo lxc.network.type = veth >> /var/lib/lxc/$CONTAINER_NAME/config"
   run sh -c "echo lxc.network.link = virbr0 >> /var/lib/lxc/$CONTAINER_NAME/config"
   run sh -c "echo lxc.mount = /var/lib/lxc/$CONTAINER_NAME/fstab >> /var/lib/lxc/$CONTAINER_NAME/config"
-  if is_apparmor_enabled; then
-    run sh -c "echo lxc.aa_allow_incomplete = 1 >> /var/lib/lxc/$CONTAINER_NAME/config"
-  fi
-  if [ -f /etc/apparmor.d/disabled/usr.bin.lxc-start ]; then
-    run sh -c "echo lxc.aa_profile = unconfined >> /var/lib/lxc/$CONTAINER_NAME/config"
-  fi
+  run sh -c "echo lxc.aa_allow_incomplete = 1 >> /var/lib/lxc/$CONTAINER_NAME/config"
+  run sh -c "echo lxc.aa_profile = unconfined >> /var/lib/lxc/$CONTAINER_NAME/config"
 }
 
 lxc_attach() {
