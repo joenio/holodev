@@ -4,8 +4,8 @@ Priority: optional
 Maintainer: Joenio Costa <joenio@joenio.me>
 Build-Depends-Indep: debhelper (>= 8), shunit2
 Build-Depends: libvirt-bin | libvirt-clients, libvirt-bin | libvirt-daemon-system,
-               bridge-utils, debootstrap, lxc, dnsmasq, ebtables, sudo, git,
-               bash-completion
+               bridge-utils, debootstrap, lxc (>= 3), dnsmasq, ebtables, sudo, git,
+               bash-completion, lxc-templates
 Build-Conflicts: lxcfs, libpam-cgfs
 Standards-Version: 3.9.8
 Homepage: https://github.com/lappis-tools/holodev
@@ -14,10 +14,11 @@ Vcs-Git: https://github.com/lappis-tools/holodev.git
 Package: holodev
 Architecture: all
 Depends: libvirt-bin | libvirt-clients, libvirt-bin | libvirt-daemon-system,
-         bridge-utils, debootstrap, lxc, sudo, git, bash-completion,
+         bridge-utils, debootstrap, lxc (>= 3), sudo, git, bash-completion,
+         lxc-templates,
          ${misc:Depends}
 Suggests: cgmanager
 Conflicts: lxcfs, libpam-cgfs
 Description: tool that makes it easier the creation Linux containers
- A tool that makes it easier to create Linux containers for development using
- Debian systems.
+ A tool that makes it easier to create LXC Linux containers for development
+ using Debian systems.

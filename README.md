@@ -173,6 +173,7 @@ To avoid running tests when building package run:
 * Joenio Costa <joenio@joenio.me>
 * Carlos Coelho <carlospecter@gmail.com>
 * Lucas Severo <lucassalves65@gmail.com>
+* Alessandro Caetano <alessandro.caetanob@gmail.com>
 
 ## License
 

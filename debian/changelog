@@ -1,3 +1,9 @@
+holodev (1.1) UNRELEASED; urgency=medium
+
+  * requires LXC version 3 or newer
+
+ -- Joenio Costa <joenio@joenio.me>  Tue, 16 Apr 2019 17:40:47 -0300
+
 holodev (1.0) unstable; urgency=medium
 
   [ Alessandro Caetano Beltrão ]

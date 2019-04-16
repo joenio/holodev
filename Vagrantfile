@@ -1,10 +1,9 @@
 VAGRANTFILE_API_VERSION = '2'
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.network 'public_network'
-  { wheezy:     'debian/wheezy64',
+  {
     jessie:     'debian/jessie64',
     stretch:    'debian/stretch64',
-    precise:    'ubuntu/precise64',
     trusty:     'ubuntu/trusty32',
     vivid:      'larryli/vivid64',
     wily:       'ubuntu/wily32',

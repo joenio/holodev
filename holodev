@@ -189,11 +189,12 @@ create_default_configuration_file() {
   run sh -c "sed -i 's/lxc.network./#lxc.network./' /var/lib/lxc/$CONTAINER_NAME/config"
   run sh -c "echo >> /var/lib/lxc/$CONTAINER_NAME/config"
   run sh -c "echo \# holodev configurations >> /var/lib/lxc/$CONTAINER_NAME/config"
-  run sh -c "echo lxc.network.type = veth >> /var/lib/lxc/$CONTAINER_NAME/config"
-  run sh -c "echo lxc.network.link = virbr0 >> /var/lib/lxc/$CONTAINER_NAME/config"
-  run sh -c "echo lxc.mount = /var/lib/lxc/$CONTAINER_NAME/fstab >> /var/lib/lxc/$CONTAINER_NAME/config"
-  run sh -c "echo lxc.aa_allow_incomplete = 1 >> /var/lib/lxc/$CONTAINER_NAME/config"
-  run sh -c "echo lxc.aa_profile = unconfined >> /var/lib/lxc/$CONTAINER_NAME/config"
+  run sh -c "echo lxc.net.0.type = veth >> /var/lib/lxc/$CONTAINER_NAME/config"
+  run sh -c "echo lxc.net.0.link = virbr0 >> /var/lib/lxc/$CONTAINER_NAME/config"
+  # mount current curectory (suppose is the source-code of project i'm working on) into container
+  run sh -c "echo lxc.mount.entry = `pwd` /var/lib/lxc/$CONTAINER_NAME/rootfs/$HOME_DIRECTORY/$CURRENT_DIRECTORY none bind 0 0 >> /var/lib/lxc/$CONTAINER_NAME/config"
+  run sh -c "echo lxc.apparmor.allow_incomplete = 1 >> /var/lib/lxc/$CONTAINER_NAME/config"
+  run sh -c "echo lxc.apparmor.profile = unconfined >> /var/lib/lxc/$CONTAINER_NAME/config"
 }
 
 lxc_attach() {
@@ -333,9 +334,6 @@ do_create() {
     echo "directory '/var/lib/lxc/$CONTAINER_NAME' already exists, please remove it before";
     exit 3
   fi
-
-  # mount current curectory (suppose is the source-code of project i'm working on) into container
-  run sh -c "echo `pwd` /var/lib/lxc/$CONTAINER_NAME/rootfs/$HOME_DIRECTORY/$CURRENT_DIRECTORY none bind 0 0 > /var/lib/lxc/$CONTAINER_NAME/fstab"
 
   # create directory into container to mount project sources I'm working on
   if ! sudo test -d /var/lib/lxc/$CONTAINER_NAME/rootfs/$HOME_DIRECTORY/$CURRENT_DIRECTORY; then
