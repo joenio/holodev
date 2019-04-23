@@ -1,1 +1,4 @@
+*.tmp
 .vagrant
+holodev.1
+holodev.1.md

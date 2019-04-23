@@ -9,7 +9,8 @@ yes | yaourt -S --force --noconfirm \
         git \
         libvirt \
         lxc \
-        sudo
+        sudo \
+        perl
 
 su - vagrant -c "yaourt -S --force --noconfirm shunit2"
 

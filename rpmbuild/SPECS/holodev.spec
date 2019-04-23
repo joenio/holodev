@@ -32,6 +32,7 @@ BuildRequires:  git
 BuildRequires:  lxc
 BuildRequires:  shunit2
 BuildRequires:  sudo
+BuildRequires:  perl
 Requires:       bash-completion
 Requires:       debootstrap
 Requires:       bridge-utils

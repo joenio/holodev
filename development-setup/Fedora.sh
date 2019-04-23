@@ -15,6 +15,7 @@ dnf --best --allowerasing --assumeyes install \
             make \
             lxc-templates \
             gnupg \
+            perl \
             libpsl
 
 FEDORA_RELEASE=$(cat /etc/fedora-release | sed 's/Fedora release \([0-9]\+\) .\+/\1/')

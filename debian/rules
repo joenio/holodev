@@ -8,4 +8,5 @@ else
 endif
 
 %:
+	make manpage
 	dh $@ --with bash-completion

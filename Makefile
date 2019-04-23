@@ -1,6 +1,10 @@
 all:
 	@echo "nothing to do"
 
+manpage:
+	@pod2man -c Holodev\ Manual -r Holodev\ $$(./holodev --version) holodev > holodev.1
+	@pod2markdown holodev holodev.1.md
+
 test:
 	$(foreach test,$(wildcard tests/*_test.sh), sh $(test);)
 
@@ -14,3 +18,6 @@ test-vagrant:
 		echo "";\
 		vagrant ssh -c 'cd /vagrant && make test' $$machine;\
 	done
+
+clean:
+	rm -f *.1 *.1.md *.tmp

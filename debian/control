@@ -5,7 +5,7 @@ Maintainer: Joenio Costa <joenio@joenio.me>
 Build-Depends-Indep: debhelper (>= 8), shunit2
 Build-Depends: libvirt-bin | libvirt-clients, libvirt-bin | libvirt-daemon-system,
                bridge-utils, debootstrap, lxc (>= 3), dnsmasq, ebtables, sudo, git,
-               bash-completion, lxc-templates
+               bash-completion, perl, lxc-templates
 Build-Conflicts: lxcfs, libpam-cgfs
 Standards-Version: 3.9.8
 Homepage: https://github.com/lappis-tools/holodev
