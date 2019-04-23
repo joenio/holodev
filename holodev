@@ -16,7 +16,7 @@ system aimed to be used as a development environment.
 
 =cut
 
-VERSION=1.0
+VERSION=1.1
 HOST_USER=$USER
 HOST_UID=$(id -u $USER)
 CURRENT_DIRECTORY=$(basename `pwd`)
