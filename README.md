@@ -28,7 +28,7 @@ Supported GNU/Linux distributions:
 | Ubuntu Vivid        | supported       | not tested      |                 |
 | Ubuntu Wily         | supported       | not tested      |                 |
 | Ubuntu Xenial       | supported       | supported       |                 |
-| Archlinux           | supported       | not tested      |                 |
+| Archlinux           | supported       | not tested      | supported       |
 | openSUSE 42.1       | not tested      | supported       |                 |
 | openSUSE 42.2       | not tested      | supported       |                 |
 | openSUSE 42.3       | not tested      | not supported   | not supported   |
