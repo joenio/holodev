@@ -150,10 +150,11 @@ Features:
 
 =item *
 
-Naming containers is automatic defined, the C<holodev> creates Linux Containers (LXC) using the current directory plus
-the C<git branch> to compose the container name, it covers the scenario where,
-for each project (directory), there is a Linux Container, so that it is not
-necessary to install development dependecies to your system.
+Naming containers is automatic defined, the C<holodev> creates Linux Containers
+(LXC) using the current directory plus the C<git branch> to compose the
+container name, it covers the scenario where, for each project (directory),
+there is a Linux Container, so that it is not necessary to install development
+dependecies to your system.
 
 For example, if I'm working on I<Noosfero> project and I have a clone of the
 sources in the F<noosfero> directory, and if I'm on the git branch F<master> it
@@ -244,11 +245,11 @@ When creating containers the holodev creates LXC configuration file under
 F<< /var/lib/lxc/<CONTAINER_NAME>/config >> for each container. See an
 example of the F<config> file:
 
-   lxc.network.type = veth
-   lxc.network.link = virbr0
-   lxc.mount = /var/lib/lxc/<CONTAINER_NAME>/fstab
-   lxc.aa_allow_incomplete = 1
-   lxc.aa_profile = unconfined
+   lxc.net.0.type = veth
+   lxc.net.0.link = virbr0
+   lxc.mount.entry = <PWD> /var/lib/lxc/<CONTAINER_NAME>/rootfs/<HOME>/<PROJECT> none bind 0 0
+   lxc.apparmor.allow_incomplete = 1
+   lxc.apparmor.profile = unconfined
 
 =cut
 
@@ -316,14 +317,19 @@ add_user_to_sudo() {
 
 =item *
 
-holodev copy some files and directories from host machine into the container, only the files
-available on host machine under the home of user running holodev are copied.
+holodev copy some files and directories from host machine into the container,
+only the files available on host machine under the home of user running holodev
+are copied.
 
 =over
 
 =item *
 
 F<~/.gnupg>
+
+=item *
+
+F<~/.ssh>
 
 =item *
 
@@ -577,7 +583,7 @@ up_network() {
 =item start
 
 Executes C<lxc-start> in background mode and wait the container up and RUNNING,
-initialize the network service on the container and bind port using xinetd.
+initialize the network service on the container.
 
 =cut
 
@@ -590,7 +596,7 @@ do_start() {
 : <<=cut
 =item stop
 
-Unbind xinetd port and stop the container with C<lxc-stop> command.
+Stop the container with C<lxc-stop> command.
 
 =cut
 
@@ -601,7 +607,7 @@ do_stop() {
 : <<=cut
 =item destroy
 
-Unbind xinetd port and force remotion of the container with C<lxc-destroy>
+Force remotion of the container with C<lxc-destroy>
 command.
 
 =cut
@@ -658,11 +664,6 @@ exit 0
 
 =over
 
-=item --bind I<< <port-number> >>
-
-When starting a container C<holodev> binds a port between host and guest
-machines, by default the I<3000> port is used.
-
 =item --no-branch
 
 Use only the name of current directory as container name.
@@ -707,9 +708,9 @@ Create fresh container with Debian Jessie:
 
    holodev create --release jessie
 
-Attach to the console of container and bind the 8080 port:
+Attach to the console of the container:
 
-   holodev attach --bind 8080
+   holodev attach
 
 =head1 SEE ALSO
 
