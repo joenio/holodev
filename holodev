@@ -679,7 +679,7 @@ be B<noosfero-stable>.
 
 =item --release I<< <debian-release-name> >>
 
-Specify the version of Debian used in new containers (default: jessie), eg
+Specify the version of Debian used in new containers (default: stretch), eg
 creating Debian version 8, Stretch:
 
    holodev create --release stretch
