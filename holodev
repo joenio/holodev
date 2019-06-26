@@ -7,7 +7,16 @@ holodev - tool that makes it easier the creation Linux containers
 
 =head1 SYNOPSIS
 
-   holodev <COMMAND> [OPTIONS]
+   holodev <COMMAND> [OPTIONS] -- <lxc-options>
+
+COMMAND: attach, create, destroy, info, list, restart, run, start, setup, stop, snapshot
+
+OPTIONS: --no-branch,
+         --branch <branch-name> | -b <branch-name>,
+         --dummy,
+         --release <debian-codename> | -r <debian-codename>,
+         --version,
+         --all
 
 =head1 DESCRIPTION
 
@@ -639,15 +648,7 @@ do_snapshot() {
 }
 
 do_help() {
-  echo "Usage: `basename $0` <command> [options] -- <lxc-options>" >&2
-  echo "" >&2
-  echo "* <command> = {attach|create|destroy|info|list|restart|run|start|setup|stop|snapshot}" >&2
-  echo "* [options] = --no-branch" >&2
-  echo "              --branch <branch-name> | -b <branch-name>" >&2
-  echo "              --dummy" >&2
-  echo "              --release <debian-codename> | -r <debian-codename>" >&2
-  echo "              --version" >&2
-  echo "              --all" >&2
+  pod2usage $0
 }
 
 if [ -z $COMMAND ] || $INVALID_OPTIONS; then
