@@ -189,7 +189,7 @@ This will create a container called just B<noosfero>.
 if $NO_GIT_BRANCH || [ -z $GIT_BRANCH ]; then
   CONTAINER_NAME=$CURRENT_DIRECTORY
 else
-  CONTAINER_NAME=$CURRENT_DIRECTORY-$GIT_BRANCH
+  CONTAINER_NAME=$CURRENT_DIRECTORY-$(echo $GIT_BRANCH | sed 's/\//-/g')
 fi
 
 highlight() {

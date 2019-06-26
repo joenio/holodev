@@ -32,4 +32,14 @@ test_create_container_setting_branch_passing_short_option() {
   rm -rf $TEMP_DIR
 }
 
+test_create_container_with_branch_name_using_bars() {
+  cd tests; tar -xf repository.tar; cd repository
+  git checkout -b 'branch/with/bars'
+  ../../holodev create >> $LOGFILE 2>&1
+  COUNT=`../../holodev info -b 'branch/with/bars' | grep --count "Name: .\+ repository-branch-with-bars"`
+  assertEquals "container 'repository-branch-with-bars' wasn't found" 1 $COUNT
+  ../../holodev destroy -b 'branch/with/bars' >> $LOGFILE 2>&1
+  cd ..; rm -rf repository; cd ..
+}
+
 . shunit2
