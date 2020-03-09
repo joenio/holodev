@@ -669,7 +669,7 @@ exit 0
 
 Use only the name of current directory as container name.
 
-=item --branch I<< <git-branch-name> >>
+=item --branch I<< <git-branch-name> >>, -b I<< <git-branch-name> >>
 
 By default, the current branch name is used (the HEAD), but it is possible
 to change the branch name to be used to compose de container name, for example,
@@ -677,7 +677,7 @@ if the current directory is F<noosfero> and current branch name is F<master> whe
 I execute the C<holodev create --branch stable> then the LXC container name will
 be B<noosfero-stable>.
 
-=item --release I<< <debian-release-name> >>
+=item --release I<< <debian-release-name> >>, -r I<< <debian-release-name> >>
 
 Specify the version of Debian used in new containers (default: stretch), eg
 creating Debian version 8, Stretch:
