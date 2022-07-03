@@ -16,7 +16,8 @@ OPTIONS: --no-branch,
          --dummy,
          --release <debian-codename> | -r <debian-codename>,
          --version,
-         --all
+         --all,
+         --no-dotfiles
 
 =head1 DESCRIPTION
 
@@ -28,6 +29,8 @@ system aimed to be used as a development environment.
 VERSION=1.1
 HOST_USER=$USER
 HOST_UID=$(id -u $USER)
+HOST_GROUP=$(id -gn $USER)
+HOST_GID=$(id -g $USER)
 CURRENT_DIRECTORY=$(basename `pwd`)
 DEBIAN_RELEASE=stretch
 INVALID_OPTIONS=false
@@ -43,6 +46,7 @@ ARCH=
 HOME_DIRECTORY=HOLODEV
 VERBOSE=false
 QUIET=false
+NO_DOTFILES=false
 
 # Detect OS
 if [ -f /etc/lsb-release ]; then
@@ -102,6 +106,10 @@ for i in "$@"; do
       ;;
     --all)
       ARGV_ALL=true
+      shift
+      ;;
+    --no-dotfiles)
+      NO_DOTFILES=true
       shift
       ;;
     --arch)
@@ -171,11 +179,11 @@ will create a container called B<noosfero-master> when I call C<holodev create>:
 
     ~/src/noosfero$ holodev create
 
-The container B<noosfero-master> will be created with Debian Jessie (default).
+The container B<noosfero-master> will be created with Debian Stretch (default).
 If you wish to inform another version of Debian just use the C<--release>
 option:
 
-   ~/src/noosfero$ holodev create --release stretch
+   ~/src/noosfero$ holodev create --release buster
 
 If you do not want to use the I<git branch name> to compose the container name,
 use the option C<--no-branch>:
@@ -294,10 +302,11 @@ machine.
 =cut
 
 create_user_into_container() {
-  info "creating my user into the container"
+  info "creating user and group into the container"
   if $DUMMY_MODE || ! sudo grep $HOST_USER /var/lib/lxc/$CONTAINER_NAME/rootfs/etc/passwd > /dev/null; then
-    lxc_attach adduser --system --shell /bin/bash --home /$HOME_DIRECTORY --uid $HOST_UID --disabled-password --quiet $HOST_USER
-    lxc_attach chown $HOST_USER:nogroup /$HOME_DIRECTORY
+    lxc_attach addgroup --gid $HOST_GID $HOST_GROUP
+    lxc_attach adduser --system --shell /bin/bash --home /$HOME_DIRECTORY --uid $HOST_UID --gid $HOST_GID --disabled-password --quiet $HOST_USER
+    lxc_attach chown $HOST_USER:$HOST_GROUP /$HOME_DIRECTORY
   fi
 }
 
@@ -326,7 +335,7 @@ add_user_to_sudo() {
 
 =item *
 
-holodev copy some files and directories from host machine into the container,
+By default, holodev copy some files and directories from host machine into the container,
 only the files available on host machine under the home of user running holodev
 are copied.
 
@@ -346,21 +355,25 @@ F<~/.gitconfig>
 
 =back
 
+If you don't want to copy those dot-files use the option C<--no-dotfiles>.
+
 =cut
 
 copy_dot_files_into_container() {
-  info "copying dot files (gnupg, ssh, gitconfig, etc) into the container"
-  if [ -d ~/.gnupg ]; then
-    run sh -c "cp -r ~$HOST_USER/.gnupg /var/lib/lxc/$CONTAINER_NAME/rootfs/$HOME_DIRECTORY/"
-    run sh -c "chown -R $HOST_USER /var/lib/lxc/$CONTAINER_NAME/rootfs/$HOME_DIRECTORY/.gnupg"
-  fi
-  if [ -d ~/.ssh ]; then
-    run sh -c "cp -r ~$HOST_USER/.ssh /var/lib/lxc/$CONTAINER_NAME/rootfs/$HOME_DIRECTORY/"
-    run sh -c "chown -R $HOST_USER /var/lib/lxc/$CONTAINER_NAME/rootfs/$HOME_DIRECTORY/.ssh"
-  fi
-  if [ -f ~/.gitconfig ]; then
-    run sh -c "cp ~$HOST_USER/.gitconfig /var/lib/lxc/$CONTAINER_NAME/rootfs/$HOME_DIRECTORY/"
-    run sh -c "chown -R $HOST_USER /var/lib/lxc/$CONTAINER_NAME/rootfs/$HOME_DIRECTORY/.gitconfig"
+  if ! $NO_DOTFILES; then
+    info "copying dot files (gnupg, ssh, gitconfig, etc) into the container"
+    if [ -d ~/.gnupg ]; then
+      run sh -c "cp -r ~$HOST_USER/.gnupg /var/lib/lxc/$CONTAINER_NAME/rootfs/$HOME_DIRECTORY/"
+      run sh -c "chown -R $HOST_USER:$HOST_GROUP /var/lib/lxc/$CONTAINER_NAME/rootfs/$HOME_DIRECTORY/.gnupg"
+    fi
+    if [ -d ~/.ssh ]; then
+      run sh -c "cp -r ~$HOST_USER/.ssh /var/lib/lxc/$CONTAINER_NAME/rootfs/$HOME_DIRECTORY/"
+      run sh -c "chown -R $HOST_USER:$HOST_GROUP /var/lib/lxc/$CONTAINER_NAME/rootfs/$HOME_DIRECTORY/.ssh"
+    fi
+    if [ -f ~/.gitconfig ]; then
+      run sh -c "cp ~$HOST_USER/.gitconfig /var/lib/lxc/$CONTAINER_NAME/rootfs/$HOME_DIRECTORY/"
+      run sh -c "chown -R $HOST_USER:$HOST_GROUP /var/lib/lxc/$CONTAINER_NAME/rootfs/$HOME_DIRECTORY/.gitconfig"
+    fi
   fi
 }
 
@@ -502,7 +515,7 @@ do_create() {
   if ! sudo test -d /var/lib/lxc/$CONTAINER_NAME/rootfs/$HOME_DIRECTORY/$CURRENT_DIRECTORY; then
     run sh -c "mkdir -p /var/lib/lxc/$CONTAINER_NAME/rootfs/$HOME_DIRECTORY/$CURRENT_DIRECTORY"
     run sh -c "echo 'cd /$HOME_DIRECTORY/$CURRENT_DIRECTORY' > /var/lib/lxc/$CONTAINER_NAME/rootfs/$HOME_DIRECTORY/.bash_profile"
-    run sh -c "chown -R $HOST_USER /var/lib/lxc/$CONTAINER_NAME/rootfs/$HOME_DIRECTORY/.bash_profile"
+    run sh -c "chown -R $HOST_USER:$HOST_GROUP /var/lib/lxc/$CONTAINER_NAME/rootfs/$HOME_DIRECTORY/.bash_profile"
   fi
 
   create_default_configuration_file
@@ -696,6 +709,12 @@ This option can be used with C<list> command.
 
 Set the container architecture, default is the same architecture of host
 machine.
+
+=item --no-dotfiles
+
+This option when used with the command C<create> tell holodev to not copy
+dot-files from host machine into the container, like F<~/.gnupg>, F<~/.ssh> and
+F<~/.gitconfig>.
 
 =item --version
 
