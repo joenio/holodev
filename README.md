@@ -2,12 +2,15 @@
 
 # holodev
 
-`holodev` maintains a [UNIX][unix] (Do One Thing and Do It Well) and [GNU][gnu]
-(free as in freedom) philosophies.
+`holodev` is a command-line tool to simplify the creation of Linux Containers.
+
+It is developed under the [UNIX][unix] philosophy (Do One Thing and Do It Well)
+and the [GNU][gnu] principles (free as in freedom).
 
 ## A holodeck for software development
 
-A tool to facilitate the creation of Linux Containers for developing Debian systems
+A tool to facilitate the creation of Linux Containers for local development
+environments, it supports only Linux Containers running Debian distribution.
 
 The name `holodev` is a reference to the Holodeck from Star Trek:
 
